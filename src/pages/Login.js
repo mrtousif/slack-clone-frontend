@@ -1,23 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     Avatar,
     Container,
     Button,
     TextField,
-    Link,
     Grid,
     Typography,
     CircularProgress,
 } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import UserProvider from "../contexts/UserProvider";
 import { LOGIN_INPUT } from "../graphql/graphql";
-import Alert from "@material-ui/lab/Alert";
-// import Alert from "../components/Alert";
+// import Alert from "@material-ui/lab/Alert";
+import Link from "../components/Link";
+import Notification from "../components/Notification";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -42,22 +41,20 @@ const useStyles = makeStyles((theme) => ({
 export default function Login(props) {
     const classes = useStyles();
     const { handleSubmit, register, errors } = useForm();
-    const [errMsg, setErrMsg] = useState(null);
+    // const [errMsg, setErrMsg] = useState(null);
     const userCtx = React.useContext(UserProvider.context);
-
-    const [loginUser, { loading }] = useMutation(LOGIN_INPUT, {
-        update(proxy, result) {
+    // console.log(props);
+    const [loginUser, { loading, error }] = useMutation(LOGIN_INPUT, {
+        update(cache, result) {
             userCtx.login(result.data.login);
             props.history.push("/");
-            // window.open("/", "_self");
-            window.close();
         },
 
         onError(err) {
             // console.log("Error", err.message);
-            const message = err.graphQLErrors[0].message;
-            console.log(message);
-            setErrMsg(message);
+            // const message = err.graphQLErrors[0].message;
+            // console.log(message);
+            // setErrMsg(message);
             return err;
         },
     });
@@ -74,9 +71,7 @@ export default function Login(props) {
 
     return (
         <Container component="main" maxWidth="xs">
-            {errMsg && errMsg.length > 2 ? (
-                <Alert severity="error">{errMsg}</Alert>
-            ) : null}
+            {error && <Notification message={error.message} />}
 
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
@@ -149,12 +144,7 @@ export default function Login(props) {
                         </Link>
                     </Grid>
                     <Grid item>
-                        <Link
-                            href="#"
-                            variant="body2"
-                            component={RouterLink}
-                            to="/signup"
-                        >
+                        <Link href="#" variant="body2" component={Link} to="/signup">
                             {"Don't have an account? Sign Up"}
                         </Link>
                     </Grid>

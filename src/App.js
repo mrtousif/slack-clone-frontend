@@ -7,31 +7,32 @@ import { CssBaseline } from "@material-ui/core"; //useMediaQuery,
 import { ThemeProvider } from "@material-ui/core/styles"; //createMuiTheme,
 import theme from "./theme";
 
-import Home from "./pages/Home";
+import WorkspaceHome from "./pages/WorkspaceHome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CreateWorkspace from "./pages/CreateWorkspace";
 import NotFound from "./pages/NotFound";
-import ChannelTab from "./pages/ChannelTab";
+import Home from "./pages/Home";
+
 // import NavBar from "./components/NavBar";
 // import "./app.css";
 // import blue from "@material-ui/core/colors/blue";
 // import orange from '@material-ui/core/colors/orange';
 
-function PrivateRoute({ children, ...rest }) {
+function PrivateRoute({ component: Component, ...rest }) {
     const auth = React.useContext(UserProvider.context);
     // console.log(auth.user);
     return (
         <Route
             {...rest}
-            render={({ location }) =>
+            render={(props) =>
                 auth.user ? (
-                    children
+                    <Component {...props} />
                 ) : (
                     <Redirect
                         to={{
                             pathname: "/login",
-                            state: { from: location },
+                            state: { from: props.location },
                         }}
                     />
                 )
@@ -67,27 +68,30 @@ function App() {
                 <ApolloProvider>
                     <UserProvider>
                         <Switch>
-                            <PrivateRoute exact path="/">
-                                <Home />
-                            </PrivateRoute>
-
-                            {/* <ScrollToTop> */}
+                            <PrivateRoute exact path="/" component={Home} />
                             <Route exact path="/login" component={Login} />
                             <Route exact path="/signup" component={Signup} />
-                            <PrivateRoute exact path="/create-workspace">
-                                <CreateWorkspace />
-                            </PrivateRoute>
-                            <PrivateRoute exact path="/:workspaceId/:channelId">
-                                <ChannelTab />
-                            </PrivateRoute>
+                            <PrivateRoute
+                                exact
+                                path="/create-workspace"
+                                component={CreateWorkspace}
+                            />
+                            {/* <PrivateRoute
+                                exact
+                                path="/:workspaceId"
+                                component={WorkspaceHome}
+                            /> */}
+                            <PrivateRoute
+                                exact
+                                path="/:workspaceId/:channelId?"
+                                component={WorkspaceHome}
+                            />
                             <Route path="*" component={NotFound} />
                             {/* <Route
                                 exact
                                 path="/"
                                 render={(props) => <Home {...props} />}
                             /> */}
-
-                            {/* </ScrollToTop> */}
                         </Switch>
                     </UserProvider>
                 </ApolloProvider>

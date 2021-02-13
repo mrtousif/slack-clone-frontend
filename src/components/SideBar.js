@@ -1,14 +1,12 @@
 import React from "react";
 import {
-    // List,
-    // ListItem,
-    // ListItemIcon,
-    // ListItemText,
+    Menu,
+    MenuItem,
     Grid,
     Divider,
     Typography,
     IconButton,
-    // Collapse,
+    // Avatar,
     ButtonBase,
 } from "@material-ui/core";
 import MessageIcon from "@material-ui/icons/Message";
@@ -17,13 +15,12 @@ import ExpandMore from "@material-ui/icons/ExpandMore";
 // import StarBorder from "@material-ui/icons/StarBorder";
 import { makeStyles } from "@material-ui/core/styles";
 import ListWithSubList from "./ListWithSubList";
+import Link from "./Link";
+// import { useRouteMatch } from "react-hook-form";
 
-// const drawerWidth = 260;
+// const drawerWidth = 250;
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        display: "flex",
-    },
     drawer: {
         [theme.breakpoints.up("sm")]: {
             width: theme.drawerWidth,
@@ -61,18 +58,7 @@ const useStyles = makeStyles((theme) => ({
     nested: {
         paddingLeft: theme.spacing(4),
     },
-    // sectionDesktop: {
-    // display: "none",
-    // [theme.breakpoints.up("md")]: {
-    //     display: "flex",
-    // },
-    // },
-    // sectionMobile: {
-    //     display: "flex",
-    //     [theme.breakpoints.up("md")]: {
-    //         display: "none",
-    //     },
-    // },
+
     color: {
         color: "rgb(201, 209, 217)",
     },
@@ -82,13 +68,65 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SideBar(props) {
-    const { workspaceData } = props;
-
+    const { workspaceData, setChannelId } = props;
+    // workspaces = [],
     const classes = useStyles();
-    // console.log(workspaceData);
+    // console.log(workspaces);
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const isMenuOpen = Boolean(anchorEl);
+    const handleWorkspaceMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleWorkspaceMenuClose = () => {
+        setAnchorEl(null);
+        // handleMobileMenuClose();
+    };
+
+    const menuId = "workspace-menu";
+    const renderWorkspaceMenu = (
+        <Menu
+            anchorEl={anchorEl}
+            // anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            id={menuId}
+            // keepMounted
+            // transformOrigin={{ vertical: "top", horizontal: "right" }}
+            open={isMenuOpen}
+            onClose={handleWorkspaceMenuClose}
+        >
+            <MenuItem onClick={handleWorkspaceMenuClose}>
+                Invite people to workspace
+            </MenuItem>
+            <MenuItem onClick={handleWorkspaceMenuClose}>Sign out of workspace</MenuItem>
+            <MenuItem component={Link} to="/create-workspace">
+                Add workspace
+            </MenuItem>
+            <MenuItem onClick={handleWorkspaceMenuClose}>Switch workspaces</MenuItem>
+        </Menu>
+    );
+
+    // const switchWorkspace = () => {};
 
     return (
         <div>
+            {/* <Grid container> */}
+            {/* <Grid item style={{ width: "4em", paddingTop: "2em" }}>
+                    <Grid container direction="column" alignItems="center" spacing={1}>
+                        {workspaces.map((workspace) => (
+                            <Grid item key={workspace.id}>
+                                <ButtonBase
+                                    component={Link}
+                                    to={`/${workspace.id}`}
+                                    onClick={switchWorkspace}
+                                >
+                                    <Avatar variant="rounded">{workspace.name[0]}</Avatar>
+                                </ButtonBase>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Grid> */}
+
+            {/* <Grid item> */}
             <div className={classes.toolbar}>
                 <Grid
                     container
@@ -102,11 +140,21 @@ export default function SideBar(props) {
                     <Grid item>
                         <Grid container>
                             <Grid item>
-                                <ButtonBase disableRipple style={{ color: "#fff" }}>
+                                <ButtonBase
+                                    edge="end"
+                                    aria-label="workspace"
+                                    aria-controls={menuId}
+                                    aria-haspopup="true"
+                                    onClick={handleWorkspaceMenuOpen}
+                                    color="inherit"
+                                    disableRipple
+                                    // style={{ color: "#fff" }}
+                                >
                                     <Typography>{workspaceData.name}</Typography>
                                     <ExpandMore color="inherit" />
                                 </ButtonBase>
                             </Grid>
+                            {renderWorkspaceMenu}
                         </Grid>
                     </Grid>
                     <Grid item>
@@ -118,12 +166,22 @@ export default function SideBar(props) {
                 </Grid>
             </div>
             <Divider />
-            <ListWithSubList name="Channels" subList={workspaceData.channels} />
+            <ListWithSubList
+                name="Channels"
+                subList={workspaceData.channels}
+                setChannelId={setChannelId}
+                workspace={workspaceData}
+            />
             <Divider />
-            <ListWithSubList name="Direct Messages" subList={workspaceData.messages} />
+            <ListWithSubList
+                name="Direct messages"
+                subList={workspaceData.messages}
+                workspace={workspaceData}
+            />
             <Divider />
             <ListWithSubList name="Apps" subList={workspaceData.apps} />
             <Divider />
+            {/* </Grid> */}
             {/* <Divider /> */}
             {/* <List>
             {["All mail", "Trash", "Spam"].map((text, index) => (
@@ -135,6 +193,7 @@ export default function SideBar(props) {
                 </ListItem>
             ))}
         </List> */}
+            {/* </Grid> */}
         </div>
     );
 }

@@ -5,21 +5,23 @@ import {
     Grid,
     Avatar,
     Typography,
-    Button,
     IconButton,
     ButtonBase,
     // TextField,
 } from "@material-ui/core";
 // import { makeStyles } from "@material-ui/core/styles";
 // import Notification from "../components/Notification";
-import { GET_WORKSPACE } from "../graphql/graphql";
+import { GET_CHANNEL } from "../graphql/graphql";
 import { useQuery } from "@apollo/client";
 // import UserProvider from "../contexts/UserProvider";
 import InfoIcon from "@material-ui/icons/Info";
-import AppBar from "../components/AppBar";
+import StarIcon from "@material-ui/icons/StarOutline";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+// import AppBar from "../components/AppBar";
 // import ErrorBoundary from "../ErrorBoundary";
 import SendMessage from "../components/SendMessage";
 import Loading from "../components/Loading";
+import { useRouteMatch } from "react-router-dom";
 
 // const useStyles = makeStyles((theme) => ({
 //     // content: {
@@ -30,64 +32,60 @@ import Loading from "../components/Loading";
 
 function ChannelTab(props) {
     // const classes = useStyles();
-    // console.log(props.hostData);
+    const { channelId: firstChannelId } = props;
 
+    // console.log(channelId);
     // const [totalComments, setTotalComments] = useState(0);
     // const [sortBy, setSortBy] = useState(null);
     // const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+    const {
+        params: { channelId },
+    } = useRouteMatch();
 
-    // const sortComments = (key) => {
-    //     switch (key) {
-    //         case "likes":
-    //             setSortBy("likes");
-    //             break;
-    //         case "newest":
-    //             setSortBy("createdAt");
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-    // };
-    const { loading, error, data } = useQuery(GET_WORKSPACE, {
-        // variables: {
-        //     userId: userCtx.user._id,
-        // },
+    const { loading, data } = useQuery(GET_CHANNEL, {
+        variables: {
+            channelId: channelId ? channelId : firstChannelId,
+        },
     });
 
     if (loading) return <Loading />;
-    if (error) return "Error:(";
     //totalComments={totalComments} sortComments={sortComments}
     // style={{ marginTop: "9rem" }}
     // direction="column"
-    const { getWorkspace } = data;
-    return (
-        <AppBar workspaceData={getWorkspace}>
-            {/* <div
-                style={{
-                    display: "grid",
-                    height: "100vh",
-                    gridTemplateColumns: "100px 250px 1fr",
-                    gridTemplateRows: "auto 1fr auto",
-                }}
-            ></div> */}
+
+    return data ? (
+        <div>
             <Grid container justify="space-between" style={{ padding: "1rem" }}>
                 <Grid item>
                     <Grid container direction="column">
-                        <Typography
-                            style={{ fontSize: "1em", fontWeight: "700" }}
-                            color="initial"
-                        >
-                            #general
-                        </Typography>
-                        <Typography style={{ fontSize: "0.9em" }} color="textSecondary">
-                            Add a topic
-                        </Typography>
+                        <Grid item container alignItems="center" spacing={1}>
+                            <Grid item>
+                                <Typography
+                                    style={{ fontSize: "1em", fontWeight: "700" }}
+                                    color="initial"
+                                >
+                                    {`#${data.getChannel.name}`}
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <IconButton size="small">
+                                    <StarIcon style={{ fontSize: "inherit" }} />
+                                </IconButton>
+                            </Grid>
+                        </Grid>
+                        <Grid item>
+                            <Typography
+                                style={{ fontSize: "0.9em" }}
+                                color="textSecondary"
+                            >
+                                Add a topic
+                            </Typography>
+                        </Grid>
                     </Grid>
                 </Grid>
 
                 <Grid item>
-                    <Grid container alignItems="center" spacing={2}>
+                    <Grid container alignItems="center" spacing={1}>
                         <Grid item>
                             <ButtonBase size="small">
                                 <Avatar
@@ -97,14 +95,9 @@ function ChannelTab(props) {
                             </ButtonBase>
                         </Grid>
                         <Grid item>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                style={{ textTransform: "none" }}
-                                size="small"
-                            >
-                                + Add
-                            </Button>
+                            <IconButton color="primary">
+                                <PersonAddIcon />
+                            </IconButton>
                         </Grid>
                         <Grid item>
                             <IconButton>
@@ -116,10 +109,20 @@ function ChannelTab(props) {
             </Grid>
             <Divider />
 
-            {/* <div> */}
-            <SendMessage />
-            {/* </div> */}
-        </AppBar>
+            <div
+                style={{
+                    position: "fixed",
+                    bottom: 0,
+                    top: "auto",
+                    padding: "0.5em",
+                    width: "70vw",
+                }}
+            >
+                <SendMessage channel={data.getChannel} />
+            </div>
+        </div>
+    ) : (
+        "ERROR"
     );
 }
 

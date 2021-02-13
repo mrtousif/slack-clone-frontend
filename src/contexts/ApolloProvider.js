@@ -9,19 +9,28 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 // process.env.REACT_APP_API_URL
+// import Notification from "../components/Notification";
+
 const httpLink = createHttpLink({
     uri: "http://localhost:5000/graphql",
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)
-        graphQLErrors.map(({ message, locations, path }) =>
-            console.log(
+        graphQLErrors.forEach(({ message, locations, path }) => {
+            console.error(
                 `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-            )
-        );
+            );
+            // return <Notification message={message}/>
+            // if (message.includes("not authenticated")) {
+            //     Router.replace("/login");
+            // } else {
+            //     console.log("dispatch");
+            //     snackbarStore.dispatch.snackbar.handleOpen(message);
+            // }
+        });
 
-    if (networkError) console.log(`[Network error]: ${networkError}`);
+    if (networkError) console.warn(`[Network error]: ${networkError}`);
 });
 
 const authLink = setContext(() => {
@@ -38,6 +47,7 @@ const authLink = setContext(() => {
 const client = new ApolloClient({
     link: errorLink.concat(authLink.concat(httpLink)),
     cache: new InMemoryCache(),
+    connectToDevTools: true,
 });
 
 function Provider(props) {

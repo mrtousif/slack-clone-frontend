@@ -1,47 +1,70 @@
 import { gql } from "@apollo/client";
 
 export const GET_WORKSPACE = gql`
-    query {
-        getWorkspace(id: "96b529fb-8dce-4c95-8c50-d00fd9f7f9e1") {
+    query getWorkspace($workspaceId: ID!) {
+        getWorkspace(workspaceId: $workspaceId) {
             id
             name
-            channels {
+            members {
                 id
                 name
-                workspaceId
             }
         }
     }
 `;
 
-export const GET_COMMENTS = gql`
-    query getComments($postId: ID!) {
-        getComments(postId: $postId) {
-            _id
-            body
-            likes
-            replies
-            user {
-                _id
+export const GET_WORKSPACES = gql`
+    query {
+        getWorkspacesByOwner {
+            id
+            name
+            owner
+            channels {
+                id
                 name
-                photo
             }
-            createdAt
-            userLiked
+        }
+        getWorkspacesByMember {
+            id
+            name
+            owner
+            channels {
+                id
+                name
+            }
+        }
+    }
+`;
+
+export const GET_CHANNEL = gql`
+    query getChannel($channelId: ID!) {
+        getChannel(channelId: $channelId) {
+            id
+            name
+            # owner {
+            #     id
+            #     name
+            #     photo
+            # }
         }
     }
 `;
 
 export const CREATE_CHANNEL = gql`
-    mutation createChannel($workspaceId: ID!, $name: String!, $description: String) {
-        createChannel(workspaceId: $workspaceId, name: $name, description: $description) {
+    mutation createChannel(
+        $workspaceId: ID!
+        $name: String!
+        $description: String
+        $private: Boolean
+    ) {
+        createChannel(
+            workspaceId: $workspaceId
+            name: $name
+            description: $description
+            private: $private
+        ) {
             id
             name
-            owner {
-                id
-                name
-                photo
-            }
         }
     }
 `;
@@ -51,20 +74,14 @@ export const CREATE_WORKSPACE = gql`
         createWorkspace(name: $name) {
             id
             name
-            owner {
-                id
-                name
-                photo
-            }
         }
     }
 `;
 
-export const LIKE_COMMENT = gql`
-    mutation likeComment($commentId: ID!, $postId: ID!) {
-        likeComment(commentId: $commentId, postId: $postId) {
-            _id
-            likes
+export const ADD_WORKSPACE_MEMBERS = gql`
+    mutation addWorkspaceMembers($workspaceId: ID!, $emails: [String!]!) {
+        addWorkspaceMembers(workspaceId: $workspaceId, emails: $emails) {
+            ok
         }
     }
 `;
