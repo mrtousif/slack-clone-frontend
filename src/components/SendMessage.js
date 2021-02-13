@@ -13,34 +13,35 @@ import {
     // InputAdornment,
     // OutlinedInput,
 } from "@material-ui/core";
-import {
-    //  useTheme,
-    makeStyles,
-} from "@material-ui/core/styles";
+// import {
+//     //  useTheme,
+//     makeStyles,
+// } from "@material-ui/core/styles";
 
-const useStyles = makeStyles((theme) => ({
-    footer: {
-        position: "fixed",
-        bottom: 0,
-        top: "auto",
-        padding: "0.5em",
-        width: "100%",
-    },
-    // style={{ }}
-}));
+// const useStyles = makeStyles((theme) => ({
+//     footer: {
+//         position: "fixed",
+//         bottom: 0,
+//         top: "auto",
+//         padding: "0.5em",
+//         width: "100%",
+//     },
+//     // style={{ }}
+// }));
 
-export default function SendMessage() {
-    const classes = useStyles();
+export default function SendMessage(props) {
+    // const classes = useStyles();
     // const theme = useTheme();
+    const { channel } = props;
+
     return (
-        <div className={classes.footer}>
+        <div>
             <TextField
                 variant="outlined"
                 focused
-                placeholder="Send message to #general"
+                placeholder={`Send message to # ${channel.name}`}
                 multiline
                 fullWidth
-                // style={{ width: theme.drawerWidth }}
             />
             {/* <FormControl
                 className={clsx(classes.margin, classes.textField)}

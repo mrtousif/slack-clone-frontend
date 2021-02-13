@@ -43,7 +43,7 @@ import {
 import SideBar from "./SideBar";
 import Avatar from "./Avatar";
 
-const drawerWidth = 260;
+// const drawerWidth = 260;
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -51,15 +51,15 @@ const useStyles = makeStyles((theme) => ({
     },
     drawer: {
         [theme.breakpoints.up("sm")]: {
-            width: drawerWidth,
+            width: theme.drawerWidth,
             flexShrink: 0,
         },
     },
     appBar: {
         backgroundColor: theme.palette.secondary.main,
         [theme.breakpoints.up("sm")]: {
-            width: `calc(100% - ${drawerWidth}px)`,
-            marginLeft: drawerWidth,
+            width: `calc(100% - ${theme.drawerWidth}px)`,
+            marginLeft: theme.drawerWidth,
         },
     },
     menuButton: {
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
     // necessary for content to be below app bar
     toolbar: theme.mixins.toolbar,
     drawerPaper: {
-        width: drawerWidth,
+        width: theme.drawerWidth,
         backgroundColor: theme.palette.secondary.main,
         color: "rgb(201, 209, 217)",
     },
@@ -153,7 +153,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ResponsiveDrawer(props) {
-    const { window, workspaceData } = props;
+    const { window, workspaceData, workspaces } = props;
     const classes = useStyles();
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -164,7 +164,7 @@ function ResponsiveDrawer(props) {
         setMobileOpen(!mobileOpen);
     };
 
-    // console.log(workspaceData);
+    // console.log(workspaces);
 
     // const handleMobileMenuClose = () => {
     //     setMobileMoreAnchorEl(null);
@@ -197,7 +197,6 @@ function ResponsiveDrawer(props) {
         </Menu>
     );
 
-    // const drawer = {};
 
     const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -266,7 +265,7 @@ function ResponsiveDrawer(props) {
                             keepMounted: true, // Better open performance on mobile.
                         }}
                     >
-                        <SideBar workspaceData={workspaceData} />
+                        <SideBar workspaceData={workspaceData} workspaces={workspaces} />
                     </Drawer>
                 </Hidden>
                 <Hidden xsDown>
@@ -277,7 +276,7 @@ function ResponsiveDrawer(props) {
                         variant="permanent"
                         open
                     >
-                        <SideBar workspaceData={workspaceData} />
+                        <SideBar workspaceData={workspaceData} workspaces={workspaces} />
                     </Drawer>
                 </Hidden>
             </nav>

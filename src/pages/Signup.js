@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     Avatar,
     Container,
@@ -6,20 +6,19 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
-    Link,
     Grid,
     Typography,
     CircularProgress,
 } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import UserProvider from "../contexts/UserProvider";
 import { SIGNUP_INPUT } from "../graphql/graphql";
-// import Alert from "../components/Alert";
-import Alert from "@material-ui/lab/Alert";
+import Notification from "../components/Notification";
+import Link from "../components/Link";
+// import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -45,27 +44,20 @@ export default function SignUp(props) {
     const { handleSubmit, register, errors } = useForm();
     const classes = useStyles();
     const userCtx = React.useContext(UserProvider.context);
-    const [errMsg, setErrMsg] = useState(null);
-    const [addUser, { loading }] = useMutation(SIGNUP_INPUT, {
-        update(proxy, result) {
+    // const [errMsg, setErrMsg] = useState(null);
+    const [addUser, { loading, error }] = useMutation(SIGNUP_INPUT, {
+        update(cache, result) {
             // console.log(result);
             userCtx.login(result.data.signup);
-            props.history.push("/");
+            props.history.push("/create-workspace");
             // window.open("/", "_self");
         },
         onError(err) {
-            console.error(err);
-            const message = err.graphQLErrors[0].message;
-            setErrMsg(message);
+            // const message = err.graphQLErrors[0].message;
+            // setErrMsg(message);
             return err;
         },
     });
-
-    // React.useEffect(() => {
-    //     if (userCtx.user) {
-    //         window.open("/profile", "_self");
-    //     }
-    // });
 
     const onSubmit = handleSubmit((data) => {
         const { name, email, password } = data;
@@ -81,7 +73,7 @@ export default function SignUp(props) {
 
     return (
         <Container component="main" maxWidth="xs">
-            {errMsg ? <Alert severity="error">{errMsg}</Alert> : null}
+            {error && <Notification message={error.message} />}
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
@@ -169,7 +161,7 @@ export default function SignUp(props) {
                 </form>
                 <Grid container justify="flex-end">
                     <Grid item>
-                        <Link href="#" variant="body2" component={RouterLink} to="/login">
+                        <Link href="#" variant="body2" component={Link} to="/login">
                             Already have an account? Log in
                         </Link>
                     </Grid>

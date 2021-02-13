@@ -20,6 +20,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import Link from "./Link";
 import AddChannelDialog from "./AddChannelDialog";
+import AddTeammates from "./AddTeammate";
+import { useRouteMatch } from "react-router-dom";
+import UserProvider from "../contexts/UserProvider";
 
 const useStyles = makeStyles((theme) => ({
     // root: {
@@ -74,25 +77,53 @@ const useStyles = makeStyles((theme) => ({
     height: {
         minHeight: "39px",
     },
+    itemSelected: {
+        "&:focus": {
+            backgroundColor: theme.palette.primary.main,
+            "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
+                color: theme.palette.common.white,
+            },
+        },
+    },
 }));
 
 export default function ListWithSubList(props) {
-    const { name, subList = [] } = props;
+    const { workspace, name, subList = [] } = props;
+    const { user } = React.useContext(UserProvider.context);
+    // console.log(workspace);
+    const {
+        params: { workspaceId, channelId },
+    } = useRouteMatch();
+
     const classes = useStyles();
-    // const [value, setValue] = React.useState(10);
     const [open, setOpen] = React.useState(true);
+    const [owner, setOwner] = React.useState(false);
+    React.useEffect(() => {
+        if (workspace) {
+            setOwner(workspace.owner === user.id);
+        }
+    }, [user, workspace]);
+
     const handleClick = () => {
         setOpen(!open);
     };
-    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [addChannelDialogOpen, setAddChannelDialogOpen] = React.useState(false);
+    const [addTeammatesDialogOpen, setAddTeammatesDialogOpen] = React.useState(false);
 
     const handleClickOpen = () => {
-        setDialogOpen(true);
+        if (name.includes("Channel")) {
+            setAddChannelDialogOpen(true);
+        } else if (name.includes("Direct")) {
+            setAddTeammatesDialogOpen(true);
+        }
     };
 
-    const handleClose = () => {
-        setDialogOpen(false);
+    const handleClose = (e) => {
+        setAddChannelDialogOpen(false);
+        setAddTeammatesDialogOpen(false);
     };
+
+    // console.log(path, url);
 
     return (
         <div>
@@ -106,15 +137,17 @@ export default function ListWithSubList(props) {
                         )}
                     </ListItemIcon>
                     <ListItemText primary={name} />
-                    <ListItemSecondaryAction>
-                        <IconButton
-                            onClick={handleClickOpen}
-                            size="small"
-                            color="inherit"
-                        >
-                            <AddIcon />
-                        </IconButton>
-                    </ListItemSecondaryAction>
+                    {owner && (
+                        <ListItemSecondaryAction>
+                            <IconButton
+                                onClick={handleClickOpen}
+                                size="small"
+                                color="inherit"
+                            >
+                                <AddIcon />
+                            </IconButton>
+                        </ListItemSecondaryAction>
+                    )}
                 </ListItem>
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <List dense component="div" disablePadding>
@@ -123,12 +156,16 @@ export default function ListWithSubList(props) {
                                 key={i}
                                 button
                                 component={Link}
-                                to={`/${item.id}`}
+                                to={`/${workspaceId}/${item.id}`}
                                 className={classes.nested}
-                                onClick={(e) => {
-                                    // setValue(e.target.value);
-                                }}
-                                // selected={value === i}
+                                // classes={{
+                                //     selected: classes.itemSelected,
+                                // }}
+                                // onClick={(e) => {
+                                //     // setValue(e.target.value);
+                                //     // console.log(item.id);
+                                // }}
+                                selected={channelId === item.id}
                             >
                                 <ListItemIcon
                                     className={classes.color}
@@ -150,31 +187,54 @@ export default function ListWithSubList(props) {
                                 <ListItemText primary={item.name} />
                             </ListItem>
                         ))}
-                        <ListItem
-                            button
-                            className={classes.nested}
-                            onClick={(e) => {
-                                // setValue(e.target.value);
-                                handleClickOpen();
-                            }}
-                            // selected={value === i}
-                        >
-                            <ListItemIcon
-                                className={classes.color}
-                                style={{ minWidth: "1.2em" }}
+                        {owner && (
+                            <ListItem
+                                button
+                                className={classes.nested}
+                                onClick={(e) => {
+                                    handleClickOpen(e);
+                                }}
+                                // selected={value === i}
                             >
-                                <Typography color="inherit">+</Typography>
-                            </ListItemIcon>
-                            <ListItemText primary="Add" />
-                        </ListItem>
+                                <ListItemIcon
+                                    className={classes.color}
+                                    style={{ minWidth: "1.2em" }}
+                                >
+                                    <Typography color="inherit">+</Typography>
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={
+                                        name === "Channels"
+                                            ? "Add channels"
+                                            : name === "Direct messages"
+                                            ? "Add teammates"
+                                            : name === "Apps"
+                                            ? "Add apps"
+                                            : "Add"
+                                    }
+                                />
+                            </ListItem>
+                        )}
                     </List>
                 </Collapse>
             </List>
-            <AddChannelDialog
-                dialogOpen={dialogOpen}
-                handleClickOpen={handleClickOpen}
-                handleClose={handleClose}
-            />
+            {name.includes("Channels") ? (
+                <AddChannelDialog
+                    open={addChannelDialogOpen}
+                    setOpen={setAddChannelDialogOpen}
+                    handleClickOpen={handleClickOpen}
+                    handleClose={handleClose}
+                    workspace={workspace}
+                />
+            ) : name.includes("Direct") ? (
+                <AddTeammates
+                    workspace={workspace}
+                    open={addTeammatesDialogOpen}
+                    setOpen={setAddTeammatesDialogOpen}
+                    handleClickOpen={handleClickOpen}
+                    handleClose={handleClose}
+                />
+            ) : null}
         </div>
     );
 }

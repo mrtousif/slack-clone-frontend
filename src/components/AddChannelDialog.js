@@ -2,76 +2,61 @@ import React from "react";
 import {
     Button,
     Typography,
-    IconButton,
     Switch,
     Grid,
     Divider,
     CircularProgress,
+    TextField,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
 } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import MuiDialogTitle from "@material-ui/core/DialogTitle";
-import CloseIcon from "@material-ui/icons/Close";
-import { withStyles } from "@material-ui/core/styles";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
-import Alert from "@material-ui/lab/Alert";
-import UserProvider from "../contexts/UserProvider";
-import { CREATE_CHANNEL } from "../graphql/graphql";
-
-const styles = (theme) => ({
-    root: {
-        margin: 0,
-        padding: theme.spacing(2),
-    },
-    closeButton: {
-        position: "absolute",
-        right: theme.spacing(1),
-        top: theme.spacing(1),
-        color: theme.palette.grey[500],
-    },
-});
-
-const DialogTitle = withStyles(styles)((props) => {
-    const { children, classes, onClose, ...other } = props;
-    return (
-        <MuiDialogTitle disableTypography className={classes.root} {...other}>
-            <Typography variant="h5">{children}</Typography>
-            {onClose ? (
-                <IconButton
-                    aria-label="close"
-                    className={classes.closeButton}
-                    onClick={onClose}
-                >
-                    <CloseIcon />
-                </IconButton>
-            ) : null}
-        </MuiDialogTitle>
-    );
-});
+import { clone } from "rambda";
+// import Alert from "@material-ui/lab/Alert";
+// import UserProvider from "../contexts/UserProvider";
+import { CREATE_CHANNEL, GET_WORKSPACES } from "../graphql/graphql";
+import DialogTitle from "./DialogTitle";
+// import Notification from "./Notification";
 
 export default function FormDialog(props) {
-    const { dialogOpen: open, handleClose } = props;
+    const { open, setOpen, handleClose, workspace } = props;
     const { handleSubmit, register, errors } = useForm();
     const [checked, setChecked] = React.useState(false);
-    const [errMsg, setErrMsg] = React.useState(null);
-
+    // const [errMsg, setErrMsg] = React.useState(null);
+    // const userCtx = React.useContext(UserProvider.context);
     const handleChange = (event) => {
         // setState({ ...state, [event.target.name]: event.target.checked });
         setChecked(!checked);
     };
 
-    const userCtx = React.useContext(UserProvider.context);
+    const [createChannel, { loading, error }] = useMutation(CREATE_CHANNEL, {
+        update(cache, result) {
+            try {
+                const { getWorkspaces } = cache.readQuery({
+                    query: GET_WORKSPACES,
+                });
 
-    const [createChannel, { loading }] = useMutation(CREATE_CHANNEL, {
-        update(proxy, result) {
-            userCtx.login(result.data.login);
-            // props.history.push("/");
-            // window.open("/", "_self");
-            // window.close();
+                const workspaces = clone(getWorkspaces);
+                const updated = workspaces.map((ws) => {
+                    if (ws.id === workspace.id) {
+                        ws.channels.unshift(result.data.createChannel);
+                    }
+                    return ws;
+                });
+
+                cache.writeQuery({
+                    query: GET_WORKSPACES,
+                    data: {
+                        getWorkspaces: updated,
+                    },
+                });
+                setOpen(false);
+            } catch (error) {
+                console.error(error);
+            }
         },
 
         onError(err) {
@@ -85,23 +70,21 @@ export default function FormDialog(props) {
 
     const onSubmit = handleSubmit((data) => {
         const { name, description } = data;
-        console.log(data);
         createChannel({
             variables: {
+                workspaceId: workspace.id,
                 name,
                 description,
+                private: checked,
             },
         });
     });
 
     return (
         <div>
-            {/* <Button onClick={handleClickOpen}>Open form dialog</Button> */}
-            {errMsg && errMsg.length > 2 ? (
-                <Alert severity="error">{errMsg}</Alert>
-            ) : null}
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title" onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-add-channel">
+                {/* {error && <Notification message={error.message} />} */}
+                <DialogTitle id="form-add-channel" onClose={handleClose}>
                     Create a channel
                 </DialogTitle>
                 <Divider />
@@ -120,7 +103,7 @@ export default function FormDialog(props) {
                                     autoFocus
                                     margin="dense"
                                     name="name"
-                                    // id="name"
+                                    id="name"
                                     variant="outlined"
                                     // label="Email Address"
                                     type="text"
@@ -129,10 +112,15 @@ export default function FormDialog(props) {
                                     inputRef={register({
                                         required: true,
                                         minLength: 2,
-                                        maxLength: 80,
+                                        maxLength: 20,
                                     })}
-                                    error={errors.name && true}
-                                    helperText="Maximum character is 80"
+                                    error={
+                                        (errors.name && true) ||
+                                        (error && error.name && true)
+                                    }
+                                    helperText={
+                                        "Channel name must be unique and maximum length is 20"
+                                    }
                                 />
                             </Grid>
                             <Grid item>
@@ -140,7 +128,7 @@ export default function FormDialog(props) {
                                 <TextField
                                     margin="dense"
                                     name="description"
-                                    // id="description"
+                                    id="description"
                                     variant="outlined"
                                     // label="Email Address"
                                     type="text"

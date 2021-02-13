@@ -8,7 +8,7 @@ import {
     // Snackbar,
 } from "@material-ui/core";
 // import { makeStyles } from "@material-ui/core/styles";
-// import Notification from "../components/Notification";
+import Notification from "../components/Notification";
 import { CREATE_WORKSPACE } from "../graphql/graphql";
 import { useMutation } from "@apollo/client";
 // import UserProvider from "../contexts/UserProvider";
@@ -22,15 +22,14 @@ export default function CreateWorkspace(props) {
     const { handleSubmit, register, errors } = useForm();
     // const classes = useStyles();
 
-    const [createWorkspace, { loading }] = useMutation(CREATE_WORKSPACE, {
-        update(proxy, result) {
+    const [createWorkspace, { loading, error }] = useMutation(CREATE_WORKSPACE, {
+        update(cache, result) {
             console.log(result);
-            // props.history.push("/");
+            props.history.push(`/${result.data.createWorkspace.id}`);
             // window.open("/", "_self");
         },
-        onError(error) {
-            console.error(error);
-            return error;
+        onError(err) {
+            return err;
         },
     });
 
@@ -41,23 +40,25 @@ export default function CreateWorkspace(props) {
         const { name } = data;
         createWorkspace({
             variables: {
-                name: name,
+                name,
             },
         });
     });
 
     return (
         <Container maxWidth="md">
+            {error && <Notification message={error.message} />}
             <form onSubmit={onSubmit} noValidate>
                 <Grid container direction="column" style={{ marginTop: "5em" }}>
-                    <Typography variant="h4" component="h1" gutterBottom>
-                        What’s the name of your company or team?{" "}
-                    </Typography>
-                    <Typography variant="h6" color="initial" gutterBottom>
-                        This will be the name of your Slack workspace — choose something
-                        that your team will recognize.
-                    </Typography>
-                    {/* <Grid item> */}
+                    <Grid item>
+                        <Typography variant="h4" component="h1" gutterBottom>
+                            What’s the name of your company or team?
+                        </Typography>
+                        <Typography variant="subtitle1" color="initial" gutterBottom>
+                            This will be the name of your Slack workspace — choose
+                            something that your team will recognize.
+                        </Typography>
+                    </Grid>
 
                     <TextField
                         id="workspace-name"
