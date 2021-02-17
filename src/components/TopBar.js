@@ -1,39 +1,22 @@
 import React from "react";
-// import PropTypes from "prop-types";
+
 import {
     AppBar,
-    CssBaseline,
     // Divider,
     Hidden,
     Drawer,
     ButtonBase,
     IconButton,
-    // List,
-    // ListItem,
-    // ListItemIcon,
-    // ListItemText,
     Toolbar,
     // Typography,
     InputBase,
-    // Badge,
-    // Collapse,
-    // Grid,
     Menu,
     MenuItem,
     // Avatar,
 } from "@material-ui/core";
-
-// import InboxIcon from "@material-ui/icons/MoveToInbox";
-
-// import MailIcon from "@material-ui/icons/Mail";
 import MenuIcon from "@material-ui/icons/Menu";
-// import AccountCircle from "@material-ui/icons/AccountCircle";
-// import MoreIcon from "@material-ui/icons/More";
 import SearchIcon from "@material-ui/icons/Search";
-// import EditIcon from "@material-ui/icons/Edit";
-// import ExpandLess from "@material-ui/icons/ExpandLess";
-// import ExpandMore from "@material-ui/icons/ExpandMore";
-// import StarBorder from "@material-ui/icons/StarBorder";
+
 import {
     makeStyles,
     //  withStyles,
@@ -83,11 +66,6 @@ const useStyles = makeStyles((theme) => ({
     },
     grow: {
         flexGrow: 1,
-    },
-    content: {
-        // display: "grid",
-        flexGrow: 1,
-        // paddingTop: theme.spacing(3),
     },
     search: {
         position: "relative",
@@ -197,7 +175,6 @@ function ResponsiveDrawer(props) {
         </Menu>
     );
 
-
     const container = window !== undefined ? () => window().document.body : undefined;
 
     const handleProfileMenuOpen = (event) => {
@@ -206,7 +183,6 @@ function ResponsiveDrawer(props) {
 
     return (
         <div className={classes.root}>
-            <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar variant="dense" classes={{ root: classes.height }}>
                     <IconButton
@@ -249,8 +225,7 @@ function ResponsiveDrawer(props) {
                 {renderAccountMenu}
             </AppBar>
 
-            <nav className={classes.drawer} aria-label="mailbox folders">
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+            <nav className={classes.drawer}>
                 <Hidden smUp>
                     <Drawer
                         container={container}
@@ -280,18 +255,15 @@ function ResponsiveDrawer(props) {
                     </Drawer>
                 </Hidden>
             </nav>
-            <main className={classes.content}>
-                <div style={{ height: "28px" }} />
-                {/* <Typography paragraph>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
-                    dolor purus non enim praesent elementum facilisis leo vel. Risus at
-                  
-                    vivamus at augue. At augue eget arcu dictum varius duis at consectetur
-                    lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-                    faucibus et molestie ac.
-                </Typography> */}
-                {props.children}
+            <main
+                style={{
+                    // display: "flex",
+                    flexGrow: 1,
+                    // paddingTop: theme.spacing(3),
+                }}
+            >
+                <div style={{ width: "100%", height: "30px" }} />
+                <div>{props.children}</div>
             </main>
             {/* <div className={classes.toolbar}></div> */}
         </div>
@@ -299,62 +271,3 @@ function ResponsiveDrawer(props) {
 }
 
 export default ResponsiveDrawer;
-
-// <div className={classes.grow}>
-//     <AppBar position="static">
-//         <Toolbar>
-//             <Typography className={classes.title} variant="h6" noWrap>
-//                 Material-UI
-//             </Typography>
-//             <div className={classes.search}>
-//                 <div className={classes.searchIcon}>
-//                     <SearchIcon />
-//                 </div>
-//                 <InputBase
-//                     placeholder="Search…"
-//                     classes={{
-//                         root: classes.inputRoot,
-//                         input: classes.inputInput,
-//                     }}
-//                     inputProps={{ "aria-label": "search" }}
-//                 />
-//             </div>
-//             <div className={classes.grow} />
-//             <div className={classes.sectionDesktop}>
-//                 <IconButton aria-label="show 4 new mails" color="inherit">
-//                     <Badge badgeContent={4} color="secondary">
-//                         <MailIcon />
-//                     </Badge>
-//                 </IconButton>
-//                 <IconButton aria-label="show 17 new notifications" color="inherit">
-//                     <Badge badgeContent={17} color="secondary">
-//                         <NotificationsIcon />
-//                     </Badge>
-//                 </IconButton>
-//                 <IconButton
-//                     edge="end"
-//                     aria-label="account of current user"
-//                     aria-controls={menuId}
-//                     aria-haspopup="true"
-//                     onClick={handleProfileMenuOpen}
-//                     color="inherit"
-//                 >
-//                     <AccountCircle />
-//                 </IconButton>
-//             </div>
-//             <div className={classes.sectionMobile}>
-//                 <IconButton
-//                     aria-label="show more"
-//                     aria-controls={mobileMenuId}
-//                     aria-haspopup="true"
-//                     onClick={handleMobileMenuOpen}
-//                     color="inherit"
-//                 >
-//                     <MoreIcon />
-//                 </IconButton>
-//             </div>
-//         </Toolbar>
-//     </AppBar>
-//     {renderMobileMenu}
-//     {renderMenu}
-// </div>;

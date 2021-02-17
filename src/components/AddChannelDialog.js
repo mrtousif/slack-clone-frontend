@@ -40,6 +40,7 @@ export default function FormDialog(props) {
                 });
 
                 const workspaces = clone(getWorkspaces);
+                console.log(workspaces);
                 const updated = workspaces.map((ws) => {
                     if (ws.id === workspace.id) {
                         ws.channels.unshift(result.data.createChannel);

@@ -15,7 +15,7 @@ export const GET_WORKSPACE = gql`
 
 export const GET_WORKSPACES = gql`
     query {
-        getWorkspacesByOwner {
+        getWorkspacesAsOwner {
             id
             name
             owner
@@ -24,7 +24,7 @@ export const GET_WORKSPACES = gql`
                 name
             }
         }
-        getWorkspacesByMember {
+        getWorkspacesAsMember {
             id
             name
             owner
@@ -41,11 +41,53 @@ export const GET_CHANNEL = gql`
         getChannel(channelId: $channelId) {
             id
             name
-            # owner {
-            #     id
-            #     name
-            #     photo
-            # }
+            owner
+            messages {
+                id
+                text
+                # owner
+            }
+        }
+    }
+`;
+
+export const GET_MESSAGES = gql`
+    query getMessages($channelId: ID!) {
+        getMessages(channelId: $channelId) {
+            id
+            text
+            user {
+                id
+                name
+                photo
+            }
+            createdAt
+        }
+    }
+`;
+
+export const CREATE_WORKSPACE = gql`
+    mutation createWorkspace($name: String!) {
+        createWorkspace(name: $name) {
+            id
+            name
+            channels {
+                id
+                name
+            }
+        }
+    }
+`;
+
+export const CREATE_MESSAGE = gql`
+    mutation createMessage($channelId: ID!, $message: String!) {
+        createMessage(channelId: $channelId, text: $message) {
+            id
+            text
+            user {
+                id
+                name
+            }
         }
     }
 `;
@@ -63,15 +105,6 @@ export const CREATE_CHANNEL = gql`
             description: $description
             private: $private
         ) {
-            id
-            name
-        }
-    }
-`;
-
-export const CREATE_WORKSPACE = gql`
-    mutation createWorkspace($name: String!) {
-        createWorkspace(name: $name) {
             id
             name
         }
@@ -109,22 +142,6 @@ export const UPDATE_POST = gql`
 export const CREATE_REPLY = gql`
     mutation createReply($commentId: ID!, $body: String!) {
         createReply(commentId: $commentId, body: $body) {
-            id
-            body
-            likes
-            user {
-                id
-                name
-                photo
-            }
-            createdAt
-        }
-    }
-`;
-
-export const GET_REPLIES = gql`
-    query getReplies($commentId: ID!) {
-        getReplies(commentId: $commentId) {
             id
             body
             likes
