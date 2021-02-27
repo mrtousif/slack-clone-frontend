@@ -24,8 +24,8 @@ export default function CreateWorkspace(props) {
 
     const [createWorkspace, { loading, error }] = useMutation(CREATE_WORKSPACE, {
         update(cache, result) {
-            console.log(result);
-            props.history.push(`/${result.data.createWorkspace.id}`);
+            const { id, channels } = result.data.createWorkspace;
+            props.history.push(`/${id}/${channels[0].id}`);
             // window.open("/", "_self");
         },
         onError(err) {

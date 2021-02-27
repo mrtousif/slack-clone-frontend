@@ -8,7 +8,8 @@ function Loading() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "100vh",
+                minHeight: "300px",
+                height: "100%",
             }}
         >
             <CircularProgress />
