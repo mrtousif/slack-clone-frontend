@@ -1,5 +1,4 @@
 import React from "react";
-// import SEO from "../components/seo"
 import { Container, Typography, Grid } from "@material-ui/core";
 
 const NotFoundPage = () => (

@@ -14,11 +14,6 @@ import CreateWorkspace from "./pages/CreateWorkspace";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 
-// import NavBar from "./components/NavBar";
-// import "./app.css";
-// import blue from "@material-ui/core/colors/blue";
-// import orange from '@material-ui/core/colors/orange';
-
 function PrivateRoute({ component: Component, ...rest }) {
     const auth = React.useContext(UserProvider.context);
     // console.log(auth.user);
@@ -42,25 +37,6 @@ function PrivateRoute({ component: Component, ...rest }) {
 }
 
 function App() {
-    // const hostData = props.hostData;
-    // if (WEBSITE_ID) console.log(WEBSITE_ID);
-
-    // const theme = React.useMemo(
-    //     () =>
-    //         createMuiTheme({
-    //             palette: {
-    //                 type: hostData.darkOrLight || "light",
-    //                 background: {
-    //                     default: hostData.backgroundColor || "#fff",
-    //                 },
-    //                 primary: {
-    //                     main: blue[700],
-    //                 },
-    //             },
-    //         }),
-    //     [hostData]
-    // );
-
     return (
         <ThemeProvider theme={theme}>
             <BrowserRouter>
