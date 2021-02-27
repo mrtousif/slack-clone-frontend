@@ -7,123 +7,164 @@ import {
     Typography,
     IconButton,
     ButtonBase,
-    // TextField,
 } from "@material-ui/core";
-// import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 // import Notification from "../components/Notification";
-import { GET_CHANNEL } from "../graphql/graphql";
-import { useQuery } from "@apollo/client";
+// import { GET_MESSAGES } from "../graphql/graphql";
+import { useMutation, useQuery } from "@apollo/client";
 // import UserProvider from "../contexts/UserProvider";
 import InfoIcon from "@material-ui/icons/Info";
 import StarIcon from "@material-ui/icons/StarOutline";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
-// import AppBar from "../components/AppBar";
-// import ErrorBoundary from "../ErrorBoundary";
+import Messages from "../components/Messages";
 import SendMessage from "../components/SendMessage";
+import { CREATE_MESSAGE, GET_MESSAGES, MESSAGE_SUBSCRIPTION } from "../graphql/graphql";
 import Loading from "../components/Loading";
-import { useRouteMatch } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-// const useStyles = makeStyles((theme) => ({
-//     // content: {
-//     //     flexGrow: 1,
-//     //     padding: theme.spacing(3),
-//     // },
-// }));
+const useStyles = makeStyles((theme) => ({
+    root: {
+        // flexGrow: 1,
+        // padding: theme.spacing(3),
+        display: "grid",
+        height: "calc(100vh - 30px)",
+        // gridTemplateColumns: "100px 250px 1fr",
+        gridTemplateColumns: "1fr",
+        gridTemplateRows: "auto 1fr auto",
+    },
+    header: {
+        gridRow: 1,
+    },
+    content: {
+        gridRow: 2,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column-reverse",
+        padding: "1em",
+    },
+    footer: {
+        gridRow: 3,
+    },
+}));
 
 function ChannelTab(props) {
-    // const classes = useStyles();
-    const { channelId: firstChannelId } = props;
+    const { channel } = props;
+    const { channelId } = useParams();
+    const classes = useStyles();
 
-    // console.log(channelId);
-    // const [totalComments, setTotalComments] = useState(0);
-    // const [sortBy, setSortBy] = useState(null);
-    // const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-    const {
-        params: { channelId },
-    } = useRouteMatch();
-
-    const { loading, data } = useQuery(GET_CHANNEL, {
+    const { data, loading, subscribeToMore, error } = useQuery(GET_MESSAGES, {
+        fetchPolicy: "network-only",
         variables: {
-            channelId: channelId ? channelId : firstChannelId,
+            channelId,
+        },
+    });
+    const [createMessage] = useMutation(CREATE_MESSAGE, {
+        onError(err) {
+            return err;
         },
     });
 
-    if (loading) return <Loading />;
-    //totalComments={totalComments} sortComments={sortComments}
-    // style={{ marginTop: "9rem" }}
-    // direction="column"
+    const subscribeForNewMessages = () =>
+        subscribeToMore({
+            document: MESSAGE_SUBSCRIPTION,
+            variables: { channelId },
+            updateQuery: (prev, { subscriptionData }) => {
+                if (!subscriptionData.data) return prev;
+                const newFeedItem = subscriptionData.data.newMessage;
+                // console.log(prev);
+                return {
+                    ...prev,
+                    getMessages: [newFeedItem, ...prev.getMessages],
+                };
+            },
+        });
 
-    return data ? (
-        <div>
-            <Grid container justify="space-between" style={{ padding: "1rem" }}>
-                <Grid item>
-                    <Grid container direction="column">
-                        <Grid item container alignItems="center" spacing={1}>
-                            <Grid item>
-                                <Typography
-                                    style={{ fontSize: "1em", fontWeight: "700" }}
-                                    color="initial"
-                                >
-                                    {`#${data.getChannel.name}`}
-                                </Typography>
-                            </Grid>
-                            <Grid item>
-                                <IconButton size="small">
-                                    <StarIcon style={{ fontSize: "inherit" }} />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                        <Grid item>
-                            <Typography
-                                style={{ fontSize: "0.9em" }}
-                                color="textSecondary"
-                            >
-                                Add a topic
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                </Grid>
+    if (error) console.error(error);
 
-                <Grid item>
-                    <Grid container alignItems="center" spacing={1}>
-                        <Grid item>
-                            <ButtonBase size="small">
-                                <Avatar
-                                    variant="rounded"
-                                    style={{ height: "28px", width: "28px" }}
-                                />
-                            </ButtonBase>
-                        </Grid>
-                        <Grid item>
-                            <IconButton color="primary">
-                                <PersonAddIcon />
-                            </IconButton>
-                        </Grid>
-                        <Grid item>
-                            <IconButton>
-                                <InfoIcon />
-                            </IconButton>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Grid>
-            <Divider />
+    return (
+        <div className={classes.root}>
+            <div className={classes.header}>
+                <ChannelTabTopBar channel={channel} />
+                <Divider />
+            </div>
 
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: 0,
-                    top: "auto",
-                    padding: "0.5em",
-                    width: "70vw",
-                }}
-            >
-                <SendMessage channel={data.getChannel} />
+            <div className={classes.content}>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <Messages
+                        messages={data.getMessages}
+                        subscribeForNewMessages={subscribeForNewMessages}
+                    />
+                )}
+            </div>
+
+            <div className={classes.footer}>
+                <SendMessage
+                    placeholder={channel.name}
+                    channelId={channelId}
+                    createMessage={createMessage}
+                />
             </div>
         </div>
-    ) : (
-        "ERROR"
     );
 }
+
+const ChannelTabTopBar = ({ channel }) => (
+    <Grid
+        container
+        alignItems="center"
+        justify="space-between"
+        style={{ padding: "1rem", paddingTop: "1.3rem" }}
+    >
+        <Grid item>
+            <Grid container direction="column">
+                <Grid item container alignItems="center" spacing={1}>
+                    <Grid item>
+                        <Typography
+                            style={{ fontSize: "1em", fontWeight: "700" }}
+                            color="initial"
+                        >
+                            {`#${channel.name}`}
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <IconButton size="small">
+                            <StarIcon style={{ fontSize: "inherit" }} />
+                        </IconButton>
+                    </Grid>
+                </Grid>
+                <Grid item>
+                    <Typography style={{ fontSize: "0.9em" }} color="textSecondary">
+                        Add a topic
+                    </Typography>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid item>
+            <Grid container alignItems="center" spacing={1}>
+                <Grid item>
+                    <ButtonBase size="small">
+                        <Avatar
+                            variant="rounded"
+                            style={{ height: "28px", width: "28px" }}
+                        />
+                    </ButtonBase>
+                </Grid>
+                <Grid item>
+                    <IconButton color="primary">
+                        <PersonAddIcon />
+                    </IconButton>
+                </Grid>
+                <Grid item>
+                    <IconButton>
+                        <InfoIcon />
+                    </IconButton>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+);
 
 export default ChannelTab;

@@ -11,20 +11,32 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
+    useMediaQuery,
 } from "@material-ui/core";
+import { useTheme } from "@material-ui/core/styles";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { clone } from "rambda";
 // import Alert from "@material-ui/lab/Alert";
 // import UserProvider from "../contexts/UserProvider";
-import { CREATE_CHANNEL, GET_WORKSPACES } from "../graphql/graphql";
+import {
+    CREATE_CHANNEL,
+    GET_WORKSPACE,
+    // GET_USER_WORKSPACES
+} from "../graphql/graphql";
 import DialogTitle from "./DialogTitle";
-// import Notification from "./Notification";
+import Notification from "./Notification";
+import { useRouteMatch } from "react-router-dom";
 
 export default function FormDialog(props) {
-    const { open, setOpen, handleClose, workspace } = props;
+    const {
+        params: { workspaceId },
+    } = useRouteMatch();
+    const { open, setOpen, handleClose } = props;
     const { handleSubmit, register, errors } = useForm();
     const [checked, setChecked] = React.useState(false);
+    const theme = useTheme();
+    const matchesSM = useMediaQuery(theme.breakpoints.up("sm"));
     // const [errMsg, setErrMsg] = React.useState(null);
     // const userCtx = React.useContext(UserProvider.context);
     const handleChange = (event) => {
@@ -35,22 +47,31 @@ export default function FormDialog(props) {
     const [createChannel, { loading, error }] = useMutation(CREATE_CHANNEL, {
         update(cache, result) {
             try {
-                const { getWorkspaces } = cache.readQuery({
-                    query: GET_WORKSPACES,
+                const { getWorkspace } = cache.readQuery({
+                    query: GET_WORKSPACE,
+                    variables: { workspaceId },
                 });
 
-                const workspaces = clone(getWorkspaces);
-                const updated = workspaces.map((ws) => {
-                    if (ws.id === workspace.id) {
-                        ws.channels.unshift(result.data.createChannel);
-                    }
-                    return ws;
-                });
+                // const data = cache.readQuery({
+                //     query: GET_USER_WORKSPACES,
+                // });
+                // console.log(data);
+
+                const workspace = clone(getWorkspace);
+                // console.log(workspace);
+                const updated = workspace.channels.unshift(result.data.createChannel);
+                // workspaces.map((ws) => {
+                //     if (ws.id === workspaceId) {
+                //         ws.channels.unshift(result.data.createChannel);
+                //     }
+                //     return ws;
+                // });
 
                 cache.writeQuery({
-                    query: GET_WORKSPACES,
+                    query: GET_WORKSPACE,
+                    variables: { workspaceId },
                     data: {
-                        getWorkspaces: updated,
+                        getWorkspace: updated,
                     },
                 });
                 setOpen(false);
@@ -60,10 +81,6 @@ export default function FormDialog(props) {
         },
 
         onError(err) {
-            // console.log("Error", { ...err });
-            // const message = err.graphQLErrors[0].message;
-            // // console.log(message);
-            // setErrMsg(message);
             return err;
         },
     });
@@ -72,7 +89,7 @@ export default function FormDialog(props) {
         const { name, description } = data;
         createChannel({
             variables: {
-                workspaceId: workspace.id,
+                workspaceId,
                 name,
                 description,
                 private: checked,
@@ -82,8 +99,13 @@ export default function FormDialog(props) {
 
     return (
         <div>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-add-channel">
-                {/* {error && <Notification message={error.message} />} */}
+            <Dialog
+                fullScreen={matchesSM ? false : true}
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="form-add-channel"
+            >
+                {error && <Notification message={error.message} />}
                 <DialogTitle id="form-add-channel" onClose={handleClose}>
                     Create a channel
                 </DialogTitle>

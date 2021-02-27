@@ -161,7 +161,7 @@ export default function SignUp(props) {
                 </form>
                 <Grid container justify="flex-end">
                     <Grid item>
-                        <Link href="#" variant="body2" component={Link} to="/login">
+                        <Link variant="body2" to="/login">
                             Already have an account? Log in
                         </Link>
                     </Grid>

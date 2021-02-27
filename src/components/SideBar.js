@@ -6,16 +6,14 @@ import {
     Divider,
     Typography,
     IconButton,
-    // Avatar,
     ButtonBase,
 } from "@material-ui/core";
 import MessageIcon from "@material-ui/icons/Message";
-// import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-// import StarBorder from "@material-ui/icons/StarBorder";
 import { makeStyles } from "@material-ui/core/styles";
-import ListWithSubList from "./ListWithSubList";
 import Link from "./Link";
+import ChannelList from "./ChannelList";
+import DMList from "./DMList";
 // import { useRouteMatch } from "react-hook-form";
 
 // const drawerWidth = 250;
@@ -68,17 +66,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SideBar(props) {
-    const { workspaceData, setChannelId } = props;
+    const { workspaceData } = props;
     // workspaces = [],
     const classes = useStyles();
     // console.log(workspaces);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
-    const handleWorkspaceMenuOpen = (event) => {
+    const handleOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    const handleWorkspaceMenuClose = () => {
+    const handleClose = () => {
         setAnchorEl(null);
         // handleMobileMenuClose();
     };
@@ -92,16 +90,14 @@ export default function SideBar(props) {
             // keepMounted
             // transformOrigin={{ vertical: "top", horizontal: "right" }}
             open={isMenuOpen}
-            onClose={handleWorkspaceMenuClose}
+            onClose={handleClose}
         >
-            <MenuItem onClick={handleWorkspaceMenuClose}>
-                Invite people to workspace
-            </MenuItem>
-            <MenuItem onClick={handleWorkspaceMenuClose}>Sign out of workspace</MenuItem>
+            <MenuItem onClick={handleClose}>Invite people to workspace</MenuItem>
+            <MenuItem onClick={handleClose}>Sign out of workspace</MenuItem>
             <MenuItem component={Link} to="/create-workspace">
                 Add workspace
             </MenuItem>
-            <MenuItem onClick={handleWorkspaceMenuClose}>Switch workspaces</MenuItem>
+            <MenuItem onClick={handleClose}>Switch workspaces</MenuItem>
         </Menu>
     );
 
@@ -145,7 +141,7 @@ export default function SideBar(props) {
                                     aria-label="workspace"
                                     aria-controls={menuId}
                                     aria-haspopup="true"
-                                    onClick={handleWorkspaceMenuOpen}
+                                    onClick={handleOpen}
                                     color="inherit"
                                     disableRipple
                                     // style={{ color: "#fff" }}
@@ -166,34 +162,15 @@ export default function SideBar(props) {
                 </Grid>
             </div>
             <Divider />
-            <ListWithSubList
-                name="Channels"
-                subList={workspaceData.channels}
-                setChannelId={setChannelId}
+            <ChannelList channels={workspaceData.channels} workspace={workspaceData} />
+            <Divider />
+            <DMList
+                receivers={workspaceData.directMessageMembers || []}
                 workspace={workspaceData}
             />
             <Divider />
-            <ListWithSubList
-                name="Direct messages"
-                subList={workspaceData.messages}
-                workspace={workspaceData}
-            />
+            {/* <ListWithSubList name="Apps" subList={workspaceData.apps} /> */}
             <Divider />
-            <ListWithSubList name="Apps" subList={workspaceData.apps} />
-            <Divider />
-            {/* </Grid> */}
-            {/* <Divider /> */}
-            {/* <List>
-            {["All mail", "Trash", "Spam"].map((text, index) => (
-                <ListItem button key={text}>
-                    <ListItemIcon>
-                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                </ListItem>
-            ))}
-        </List> */}
-            {/* </Grid> */}
         </div>
     );
 }

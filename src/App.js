@@ -71,21 +71,28 @@ function App() {
                             <PrivateRoute exact path="/" component={Home} />
                             <Route exact path="/login" component={Login} />
                             <Route exact path="/signup" component={Signup} />
+                            <Route path="/not-found" component={NotFound} />
                             <PrivateRoute
                                 exact
                                 path="/create-workspace"
                                 component={CreateWorkspace}
                             />
-                            {/* <PrivateRoute
+                            <PrivateRoute
                                 exact
-                                path="/:workspaceId"
+                                path="/:workspaceId/all-dms"
                                 component={WorkspaceHome}
-                            /> */}
+                            />
+                            <PrivateRoute
+                                exact
+                                path="/:workspaceId/dm/:receiverId"
+                                component={WorkspaceHome}
+                            />
                             <PrivateRoute
                                 exact
                                 path="/:workspaceId/:channelId?"
                                 component={WorkspaceHome}
                             />
+
                             <Route path="*" component={NotFound} />
                             {/* <Route
                                 exact
