@@ -8,7 +8,7 @@ function Loading() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                minHeight: "200px",
+                minHeight: "300px",
                 height: "100%",
             }}
         >

@@ -11,14 +11,16 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 // import Notification from "../components/Notification";
 // import { GET_MESSAGES } from "../graphql/graphql";
-// import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 // import UserProvider from "../contexts/UserProvider";
 import InfoIcon from "@material-ui/icons/Info";
 import StarIcon from "@material-ui/icons/StarOutline";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import Messages from "../components/Messages";
 import SendMessage from "../components/SendMessage";
-// import { useRouteMatch } from "react-router-dom";
+import { CREATE_MESSAGE, GET_MESSAGES, MESSAGE_SUBSCRIPTION } from "../graphql/graphql";
+import Loading from "../components/Loading";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,34 +30,56 @@ const useStyles = makeStyles((theme) => ({
         height: "calc(100vh - 30px)",
         // gridTemplateColumns: "100px 250px 1fr",
         gridTemplateColumns: "1fr",
-        gridTemplateRows: "1fr 5fr auto",
+        gridTemplateRows: "auto 1fr auto",
     },
     header: {
-        // gridColumn: 3,
-        // gridRow: 1,
-        // gridArea: "header",
+        gridRow: 1,
+    },
+    content: {
+        gridRow: 2,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column-reverse",
+        padding: "1em",
     },
     footer: {
-        // gridArea: "footer",
-        // position: "fixed",
-        // bottom: 0,
-        // // top: "auto",
-        // // right: 0,
-        // // maxHeight: "70vh",
-        // // padding: "0.5em",
-        // width: `100%`,
-        // [theme.breakpoints.up("sm")]: {
-        //     width: `calc(100% - ${theme.drawerWidth}px)`,
-        // },
+        gridRow: 3,
     },
 }));
 
 function ChannelTab(props) {
     const { channel } = props;
+    const { channelId } = useParams();
     const classes = useStyles();
-    // const theme = useTheme();
 
-    // if (loading) return <Loading />;
+    const { data, loading, subscribeToMore, error } = useQuery(GET_MESSAGES, {
+        fetchPolicy: "network-only",
+        variables: {
+            channelId,
+        },
+    });
+    const [createMessage] = useMutation(CREATE_MESSAGE, {
+        onError(err) {
+            return err;
+        },
+    });
+
+    const subscribeForNewMessages = () =>
+        subscribeToMore({
+            document: MESSAGE_SUBSCRIPTION,
+            variables: { channelId },
+            updateQuery: (prev, { subscriptionData }) => {
+                if (!subscriptionData.data) return prev;
+                const newFeedItem = subscriptionData.data.newMessage;
+                // console.log(prev);
+                return {
+                    ...prev,
+                    getMessages: [newFeedItem, ...prev.getMessages],
+                };
+            },
+        });
+
+    if (error) console.error(error);
 
     return (
         <div className={classes.root}>
@@ -64,19 +88,35 @@ function ChannelTab(props) {
                 <Divider />
             </div>
 
-            <div style={{ overflowY: "auto" }}>
-                <Messages channelId={channel.id} />
+            <div className={classes.content}>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <Messages
+                        messages={data.getMessages}
+                        subscribeForNewMessages={subscribeForNewMessages}
+                    />
+                )}
             </div>
 
             <div className={classes.footer}>
-                <SendMessage channelName={channel.name} channelId={channel.id} />
+                <SendMessage
+                    placeholder={channel.name}
+                    channelId={channelId}
+                    createMessage={createMessage}
+                />
             </div>
         </div>
     );
 }
 
 const ChannelTabTopBar = ({ channel }) => (
-    <Grid container justify="space-between" style={{ padding: "1rem" }}>
+    <Grid
+        container
+        alignItems="center"
+        justify="space-between"
+        style={{ padding: "1rem", paddingTop: "1.3rem" }}
+    >
         <Grid item>
             <Grid container direction="column">
                 <Grid item container alignItems="center" spacing={1}>

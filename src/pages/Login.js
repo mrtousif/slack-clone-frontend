@@ -139,12 +139,12 @@ export default function Login(props) {
                 </form>
                 <Grid container>
                     <Grid item xs>
-                        <Link href="#" variant="body2">
+                        <Link to="#" variant="body2">
                             Forgot password?
                         </Link>
                     </Grid>
                     <Grid item>
-                        <Link href="#" variant="body2" component={Link} to="/signup">
+                        <Link variant="body2" to="/signup">
                             {"Don't have an account? Sign Up"}
                         </Link>
                     </Grid>

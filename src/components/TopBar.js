@@ -16,6 +16,7 @@ import {
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
+import UserProvider from "../contexts/UserProvider";
 
 import {
     makeStyles,
@@ -64,9 +65,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.secondary.main,
         color: "rgb(201, 209, 217)",
     },
-    grow: {
-        flexGrow: 1,
-    },
+
     search: {
         position: "relative",
         borderRadius: theme.shape.borderRadius,
@@ -132,6 +131,7 @@ const useStyles = makeStyles((theme) => ({
 
 function ResponsiveDrawer(props) {
     const { window, workspaceData, workspaces } = props;
+    const { user } = React.useContext(UserProvider.context);
     const classes = useStyles();
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -218,7 +218,7 @@ function ResponsiveDrawer(props) {
                             onClick={handleProfileMenuOpen}
                             color="inherit"
                         >
-                            <Avatar src={"someshit"} />
+                            <Avatar src={user.photo} alt={user.name} />
                         </ButtonBase>
                     </div>
                 </Toolbar>
@@ -257,12 +257,11 @@ function ResponsiveDrawer(props) {
             </nav>
             <main
                 style={{
-                    // display: "flex",
                     flexGrow: 1,
                     // paddingTop: theme.spacing(3),
+                    marginTop: "30px",
                 }}
             >
-                <div style={{ width: "100%", height: "30px" }} />
                 <div>{props.children}</div>
             </main>
             {/* <div className={classes.toolbar}></div> */}

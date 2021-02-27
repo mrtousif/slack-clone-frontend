@@ -21,39 +21,17 @@ import AddIcon from "@material-ui/icons/Add";
 import Link from "./Link";
 import AddChannelDialog from "./AddChannelDialog";
 import AddTeammates from "./AddTeammate";
-import { useRouteMatch } from "react-router-dom";
+import { useRouteMatch, useHistory } from "react-router-dom";
 import UserProvider from "../contexts/UserProvider";
 
 const useStyles = makeStyles((theme) => ({
-    // root: {
-    //     display: "flex",
-    // },
-    // drawer: {
-    //     [theme.breakpoints.up("sm")]: {
-    //         width: drawerWidth,
-    //         flexShrink: 0,
-    //     },
-    // },
-
-    // menuButton: {
-    //     marginRight: theme.spacing(2),
-    //     [theme.breakpoints.up("sm")]: {
-    //         display: "none",
-    //     },
-    // },
     title: {
         display: "none",
         [theme.breakpoints.up("sm")]: {
             display: "block",
         },
     },
-    // necessary for content to be below app bar
-    // toolbar: theme.mixins.toolbar,
-    // drawerPaper: {
-    //     width: drawerWidth,
-    //     backgroundColor: theme.palette.secondary.main,
-    //     color: "rgb(201, 209, 217)",
-    // },
+
     grow: {
         flexGrow: 1,
     },
@@ -90,10 +68,10 @@ const useStyles = makeStyles((theme) => ({
 export default function ListWithSubList(props) {
     const { workspace, name, subList = [] } = props;
     const { user } = React.useContext(UserProvider.context);
-    // console.log(workspace);
     const {
         params: { workspaceId, channelId },
     } = useRouteMatch();
+    const history = useHistory();
 
     const classes = useStyles();
     const [open, setOpen] = React.useState(true);
@@ -115,6 +93,14 @@ export default function ListWithSubList(props) {
             setAddChannelDialogOpen(true);
         } else if (name.includes("Direct")) {
             setAddTeammatesDialogOpen(true);
+        }
+    };
+
+    const handleAddClickOpen = () => {
+        if (name.includes("Channel")) {
+            setAddChannelDialogOpen(true);
+        } else if (name.includes("Direct")) {
+            history.push(`/${workspaceId}/all-dms`);
         }
     };
 
@@ -140,7 +126,7 @@ export default function ListWithSubList(props) {
                     {owner && (
                         <ListItemSecondaryAction>
                             <IconButton
-                                onClick={handleClickOpen}
+                                onClick={handleAddClickOpen}
                                 size="small"
                                 color="inherit"
                             >
@@ -205,7 +191,7 @@ export default function ListWithSubList(props) {
                                 <ListItemText
                                     primary={
                                         name === "Channels"
-                                            ? "Add channels"
+                                            ? "Add channel"
                                             : name === "Direct messages"
                                             ? "Add teammates"
                                             : name === "Apps"

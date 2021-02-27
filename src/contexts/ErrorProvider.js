@@ -1,5 +1,5 @@
 import React from "react";
-import { Snackbar } from "@material-ui/core";
+// import { Snackbar } from "@material-ui/core";
 
 const initialState = { error: null };
 
@@ -44,9 +44,9 @@ function ErrorProvider(props) {
     };
 
     return (
-        <UserContext.Provider value={{ error: state.error, set, reset }}>
+        <ErrorContext.Provider value={{ error: state.error, set, reset }}>
             {props.children}
-        </UserContext.Provider>
+        </ErrorContext.Provider>
     );
 }
 

@@ -4,56 +4,37 @@ import {
     FormControl,
     InputAdornment,
     OutlinedInput,
-    Paper,
+    // Paper,
 } from "@material-ui/core";
-// import {
-//     //  useTheme,
-//     makeStyles,
-// } from "@material-ui/core/styles";
 import SendIcon from "@material-ui/icons/Send";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@apollo/client";
-import { CREATE_MESSAGE } from "../graphql/graphql";
-
-// const useStyles = makeStyles((theme) => ({
-//     footer: {
-//         position: "fixed",
-//         bottom: 0,
-//         top: "auto",
-//         padding: "0.5em",
-//         width: "100%",
-//     },
-// }));
+// import { useMutation } from "@apollo/client";
 
 export default function SendMessage(props) {
-    // const classes = useStyles();
-    // const theme = useTheme();
-    const { channelName, channelId } = props;
-    const { handleSubmit, register } = useForm();
-    const [createMessage] = useMutation(CREATE_MESSAGE, {
-        update(cache, result) {
-            console.log(result);
-        },
-        onError(err) {
-            return err;
-        },
-    });
+    const { placeholder, channelId, createMessage, receiverId, workspaceId } = props;
+    const { handleSubmit, register, reset } = useForm();
 
     const onSubmit = handleSubmit((data) => {
-        console.log(channelId);
         const { message } = data;
+        if (channelId) {
+            createMessage({
+                variables: { channelId, message },
+            });
+        } else if (receiverId) {
+            createMessage({
+                variables: { receiverId, message, workspaceId },
+            });
+        }
 
-        createMessage({
-            variables: { channelId, message },
-        });
+        reset();
     });
 
     return (
-        <Paper
+        <div
             style={{
                 paddingLeft: "1.5em",
                 paddingRight: "1.5em",
-                paddingBottom: "1.5em",
+                paddingBottom: "1em",
             }}
         >
             <form onSubmit={onSubmit} noValidate>
@@ -68,7 +49,7 @@ export default function SendMessage(props) {
                         type="text"
                         // value={values.password}
                         // onChange={handleChange("password")}
-                        placeholder={`Message #${channelName}`}
+                        placeholder={`Message #${placeholder}`}
                         fullWidth
                         multiline
                         // labelWidth={70}
@@ -90,6 +71,6 @@ export default function SendMessage(props) {
                     />
                 </FormControl>
             </form>
-        </Paper>
+        </div>
     );
 }

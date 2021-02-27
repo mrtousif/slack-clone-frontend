@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     Grid,
     Typography,
@@ -8,44 +8,42 @@ import {
     // MenuItem
     Grow,
 } from "@material-ui/core";
-// import { useTheme } from "@material-ui/core/styles";
-import { useQuery } from "@apollo/client";
+import { makeStyles } from "@material-ui/core/styles";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-// import { parseISO, formatDistanceToNow } from "date-fns";
-// import UserProvider from "../contexts/UserProvider";
-import { GET_MESSAGES } from "../graphql/graphql";
-import Loading from "./Loading";
-import { useRouteMatch } from "react-router-dom";
+import { parseISO, formatDistanceToNow } from "date-fns";
+import { blue } from "@material-ui/core/colors";
+// import UserProvider from "../contexts/UserProvider";;
+const useStyles = makeStyles((theme) => ({
+    blue: {
+        // color: theme.palette.getContrastText(blue[300]),
+        color: blue[800],
+        backgroundColor: "#ddd",
+    },
+}));
 
-export default function Messages(props) {
-    const { channelId: cid } = props;
-    // channelId, owner, createdAt, text
-    const {
-        params: { channelId },
-    } = useRouteMatch();
+export default class Messages extends React.Component {
+    componentDidMount() {
+        this.unsubscribe = this.props.subscribeForNewMessages();
+        console.log(this.unsubscribe);
+    }
 
-    const { loading, data } = useQuery(GET_MESSAGES, {
-        variables: {
-            channelId: channelId || cid,
-        },
-    });
+    componentWillUnmount() {
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
+    }
 
-    if (loading) return <Loading />;
-
-    // const userCtx = React.useContext(UserProvider.context);
-
-    return data && data.getMessages.length > 0 ? (
-        <Grid container direction="column-reverse" style={{ padding: "1em" }}>
-            {data.getMessages.map((message) => (
-                <Message key={message.id} message={message} />
-            ))}
-        </Grid>
-    ) : null;
+    render() {
+        return this.props.messages.map((message) => (
+            <Message key={message.id} message={message} />
+        ));
+    }
 }
 
 const Message = ({ message }) => {
+    const classes = useStyles();
     const { text, user, createdAt } = message;
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
     const handleClick = (event) => {
@@ -56,12 +54,12 @@ const Message = ({ message }) => {
         setAnchorEl(null);
     };
 
-    // let commentDate = "";
-    // if (createdAt) {
-    //     commentDate = formatDistanceToNow(parseISO(createdAt), {
-    //         addSuffix: true,
-    //     });
-    // }
+    let messageDate = "";
+    if (createdAt) {
+        messageDate = formatDistanceToNow(parseISO(createdAt), {
+            addSuffix: true,
+        });
+    }
 
     const messageMenu = (
         <Menu
@@ -102,7 +100,12 @@ const Message = ({ message }) => {
         <Grow in={true}>
             <Grid item container>
                 <Grid item style={{ marginRight: "0.5em", marginTop: "0.3em" }}>
-                    <Avatar variant="rounded" alt={user.name} src={user.photo} />
+                    <Avatar
+                        className={classes.blue}
+                        variant="rounded"
+                        alt={user.name}
+                        src={user.photo}
+                    />
                 </Grid>
 
                 <Grid item container xs>
@@ -112,7 +115,7 @@ const Message = ({ message }) => {
                         </Grid>
                         <Grid item style={{ marginLeft: "0.5em", marginRight: "0.5em" }}>
                             <Typography variant="caption" color="textSecondary">
-                                {createdAt}
+                                {messageDate}
                             </Typography>
                         </Grid>
                     </Grid>

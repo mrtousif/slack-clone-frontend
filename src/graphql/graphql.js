@@ -1,21 +1,28 @@
 import { gql } from "@apollo/client";
 
-export const GET_WORKSPACE = gql`
-    query getWorkspace($workspaceId: ID!) {
-        getWorkspace(workspaceId: $workspaceId) {
+export const GET_USER_WORKSPACES = gql`
+    query getUserWorkspaces {
+        getUserWorkspaces {
             id
             name
-            members {
+            admin
+            owner
+            channels {
                 id
                 name
+            }
+            directMessageMembers {
+                id
+                name
+                photo
             }
         }
     }
 `;
 
-export const GET_WORKSPACES = gql`
-    query {
-        getWorkspacesAsOwner {
+export const GET_WORKSPACE = gql`
+    query getWorkspace($workspaceId: ID!) {
+        getWorkspace(workspaceId: $workspaceId) {
             id
             name
             owner
@@ -23,14 +30,10 @@ export const GET_WORKSPACES = gql`
                 id
                 name
             }
-        }
-        getWorkspacesAsMember {
-            id
-            name
-            owner
-            channels {
+            directMessageMembers {
                 id
                 name
+                photo
             }
         }
     }
@@ -42,11 +45,11 @@ export const GET_CHANNEL = gql`
             id
             name
             owner
-            messages {
-                id
-                text
-                # owner
-            }
+            # messages {
+            #     id
+            #     text
+            #     owner
+            # }
         }
     }
 `;
@@ -62,6 +65,31 @@ export const GET_MESSAGES = gql`
                 photo
             }
             createdAt
+        }
+    }
+`;
+
+export const GET_DIRECT_MESSAGES = gql`
+    query getDirectMessages($receiverId: ID!, $workspaceId: ID!) {
+        getDirectMessages(receiverId: $receiverId, workspaceId: $workspaceId) {
+            id
+            text
+            user {
+                id
+                name
+                photo
+            }
+            createdAt
+        }
+    }
+`;
+
+export const GET_WORKSPACE_MEMBERS = gql`
+    query getWorkspaceMembers($workspaceId: ID!) {
+        getWorkspaceMembers(workspaceId: $workspaceId) {
+            id
+            name
+            photo
         }
     }
 `;
@@ -84,10 +112,21 @@ export const CREATE_MESSAGE = gql`
         createMessage(channelId: $channelId, text: $message) {
             id
             text
-            user {
-                id
-                name
-            }
+            createdAt
+        }
+    }
+`;
+
+export const CREATE_DIRECT_MESSAGE = gql`
+    mutation createDirectMessage($receiverId: ID!, $message: String!, $workspaceId: ID!) {
+        createDirectMessage(
+            receiverId: $receiverId
+            text: $message
+            workspaceId: $workspaceId
+        ) {
+            id
+            text
+            createdAt
         }
     }
 `;
@@ -107,44 +146,16 @@ export const CREATE_CHANNEL = gql`
         ) {
             id
             name
+            private
         }
     }
 `;
 
-export const ADD_WORKSPACE_MEMBERS = gql`
-    mutation addWorkspaceMembers($workspaceId: ID!, $emails: [String!]!) {
-        addWorkspaceMembers(workspaceId: $workspaceId, emails: $emails) {
-            ok
-        }
-    }
-`;
-
-export const DELETE_COMMENT = gql`
-    mutation deleteComment($commentId: ID!) {
-        deleteComment(commentId: $commentId)
-    }
-`;
-
-export const CREATE_POST = gql`
-    mutation createPost($postId: ID!, $pageUrl: String!, $title: String) {
-        createPost(postId: $postId, pageUrl: $pageUrl, title: $title)
-    }
-`;
-
-export const UPDATE_POST = gql`
-    mutation updatePost($postId: ID!) {
-        updatePost(postId: $postId) {
-            body
-        }
-    }
-`;
-
-export const CREATE_REPLY = gql`
-    mutation createReply($commentId: ID!, $body: String!) {
-        createReply(commentId: $commentId, body: $body) {
+export const MESSAGE_SUBSCRIPTION = gql`
+    subscription newMessage($channelId: ID!) {
+        newMessage(channelId: $channelId) {
             id
-            body
-            likes
+            text
             user {
                 id
                 name
@@ -155,18 +166,26 @@ export const CREATE_REPLY = gql`
     }
 `;
 
-export const LIKE_REPLY = gql`
-    mutation likeReply($replyId: ID!) {
-        likeReply(replyId: $replyId) {
+export const DIRECT_MESSAGE_SUBSCRIPTION = gql`
+    subscription newDirectMessage($receiverId: ID!, $workspaceId: ID!) {
+        newDirectMessage(receiverId: $receiverId, workspaceId: $workspaceId) {
             id
-            likes
+            text
+            user {
+                id
+                name
+                photo
+            }
+            createdAt
         }
     }
 `;
 
-export const DELETE_REPLY = gql`
-    mutation deletePost($postId: ID!) {
-        deletePost(postId: $postId)
+export const ADD_WORKSPACE_MEMBERS = gql`
+    mutation addWorkspaceMembers($workspaceId: ID!, $emails: [String!]!) {
+        addWorkspaceMembers(workspaceId: $workspaceId, emails: $emails) {
+            ok
+        }
     }
 `;
 

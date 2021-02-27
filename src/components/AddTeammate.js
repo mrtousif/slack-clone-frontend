@@ -9,14 +9,14 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
+    useMediaQuery,
 } from "@material-ui/core";
-
 // import DialogContentText from "@material-ui/core/DialogContentText";
 import LinkIcon from "@material-ui/icons/Link";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import DialogTitle from "./DialogTitle";
-import Notification from "./Notification";
+import { useTheme } from "@material-ui/core/styles";
 // import { clone } from "rambda";
 // import Alert from "@material-ui/lab/Alert";
 // import UserProvider from "../contexts/UserProvider";
@@ -25,9 +25,10 @@ import { ADD_WORKSPACE_MEMBERS } from "../graphql/graphql";
 export default function AddTeammates(props) {
     const { open, setOpen, handleClose, workspace } = props;
     const { handleSubmit, register, errors } = useForm();
+    const theme = useTheme();
+    const matchesSM = useMediaQuery(theme.breakpoints.up("sm"));
     // const [errMsg, setErrMsg] = React.useState(null);
     // const userCtx = React.useContext(UserProvider.context);
-
     const [addTeammates, { loading, error }] = useMutation(ADD_WORKSPACE_MEMBERS, {
         update(cache, result) {
             try {
@@ -38,10 +39,6 @@ export default function AddTeammates(props) {
         },
 
         onError(err) {
-            // console.log("Error", { ...err });
-            // const message = err.graphQLErrors[0].message;
-            // // console.log(message);
-            // setErrMsg(message);
             return err;
         },
     });
@@ -65,13 +62,16 @@ export default function AddTeammates(props) {
                 onClose={handleClose}
                 aria-labelledby="form-add-teammates"
             >
-                {error && <Notification message={error.message} />}
                 <DialogTitle id="form-add-teammates" onClose={handleClose}>
                     Invite people to {workspace.name}
                 </DialogTitle>
                 <Divider />
                 <form onSubmit={onSubmit} noValidate>
-                    <DialogContent style={{ width: "520px" }}>
+                    <DialogContent
+                        style={{
+                            width: matchesSM ? "560px" : "350px",
+                        }}
+                    >
                         <Grid container direction="column" spacing={1}>
                             <Grid item>
                                 <Typography variant="subtitle2">To:</Typography>
@@ -96,6 +96,15 @@ export default function AddTeammates(props) {
                                     error={errors.emails && true}
                                     // helperText="Number of maximum character is 40"
                                 />
+                            </Grid>
+                            <Grid item>
+                                {error && (
+                                    <Typography
+                                        style={{ fontSize: "1em", color: "#ff1744" }}
+                                    >
+                                        {error.message}
+                                    </Typography>
+                                )}
                             </Grid>
                         </Grid>
                     </DialogContent>
