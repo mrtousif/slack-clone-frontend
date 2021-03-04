@@ -19,7 +19,7 @@ import ExpandMore from "@material-ui/icons/ExpandMore";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import { blue } from "@material-ui/core/colors";
-import Link from "./Link";
+import Link from "./RouterLink";
 import AddTeammates from "./AddTeammate";
 import { useRouteMatch, useHistory } from "react-router-dom";
 import UserProvider from "../contexts/UserProvider";
@@ -80,14 +80,7 @@ export default function ListWithSubList(props) {
     const history = useHistory();
 
     const [open, setOpen] = React.useState(true);
-    const [owner, setOwner] = React.useState(false);
     const [addTeammatesDialogOpen, setAddTeammatesDialogOpen] = React.useState(false);
-
-    React.useEffect(() => {
-        if (workspace) {
-            setOwner(workspace.owner === user.id);
-        }
-    }, [user, workspace]);
 
     const handleClick = () => {
         setOpen(!open);
@@ -104,8 +97,6 @@ export default function ListWithSubList(props) {
     const handleClose = (e) => {
         setAddTeammatesDialogOpen(false);
     };
-
-    // console.log(path, url);
 
     return (
         <div>
@@ -172,7 +163,7 @@ export default function ListWithSubList(props) {
                                 />
                             </ListItem>
                         ))}
-                        {owner && (
+                        {workspace.admin && (
                             <ListItem
                                 button
                                 className={classes.nested}

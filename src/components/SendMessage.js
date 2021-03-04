@@ -7,18 +7,32 @@ import {
     // Paper,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
-import { useForm } from "react-hook-form";
+import AttachFileIcon from "@material-ui/icons/AttachFile";
+import { useForm, Controller } from "react-hook-form";
 // import { useMutation } from "@apollo/client";
+import Dropzone from "./Dropzone";
 
 export default function SendMessage(props) {
-    const { placeholder, channelId, createMessage, receiverId, workspaceId } = props;
-    const { handleSubmit, register, reset } = useForm();
+    const {
+        placeholder,
+        channelId,
+        createMessage,
+        receiverId,
+        workspaceId,
+        filesToUpload,
+        setFilesToUpload,
+    } = props;
+
+    const { handleSubmit, register, reset, control } = useForm();
 
     const onSubmit = handleSubmit((data) => {
+        console.log(filesToUpload);
+        console.log(data);
         const { message } = data;
+
         if (channelId) {
             createMessage({
-                variables: { channelId, message },
+                variables: { channelId, message, file: filesToUpload[0] },
             });
         } else if (receiverId) {
             createMessage({
@@ -30,13 +44,7 @@ export default function SendMessage(props) {
     });
 
     return (
-        <div
-            style={{
-                paddingLeft: "1.5em",
-                paddingRight: "1.5em",
-                paddingBottom: "1em",
-            }}
-        >
+        <div>
             <form onSubmit={onSubmit} noValidate>
                 <FormControl
                     // className={clsx(classes.margin, classes.textField)}
@@ -54,13 +62,33 @@ export default function SendMessage(props) {
                         multiline
                         // labelWidth={70}
                         name="message"
-                        inputRef={register({
-                            required: true,
-                        })}
+                        inputRef={register({})}
+                        startAdornment={
+                            <Controller
+                                name="file"
+                                defaultValue={false}
+                                control={control}
+                                render={({ onChange }) => (
+                                    <Dropzone
+                                        onChange={onChange}
+                                        setFilesToUpload={setFilesToUpload}
+                                    >
+                                        <InputAdornment position="start">
+                                            <IconButton
+                                                aria-label="upload file"
+                                                edge="start"
+                                            >
+                                                <AttachFileIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    </Dropzone>
+                                )}
+                            />
+                        }
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                    aria-label="toggle message"
+                                    aria-label="send message"
                                     type="submit"
                                     edge="end"
                                 >

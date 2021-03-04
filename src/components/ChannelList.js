@@ -14,10 +14,10 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import Link from "./Link";
+import Link from "./RouterLink";
 import AddChannelDialog from "./AddChannelDialog";
 import { useRouteMatch } from "react-router-dom";
-import UserProvider from "../contexts/UserProvider";
+// import UserProvider from "../contexts/UserProvider";
 
 const useStyles = makeStyles((theme) => ({
     title: {
@@ -62,22 +62,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ChannelList(props) {
     const { workspace, channels = [] } = props;
-    const { user } = React.useContext(UserProvider.context);
+    // const { user } = React.useContext(UserProvider.context);
     const {
         params: { workspaceId, channelId },
     } = useRouteMatch();
 
     const classes = useStyles();
     const [open, setOpen] = React.useState(true);
-    const [owner, setOwner] = React.useState(false);
+
     const [addChannelDialogOpen, setAddChannelDialogOpen] = React.useState(false);
-
-    React.useEffect(() => {
-        if (workspace) {
-            setOwner(workspace.owner === user.id);
-        }
-    }, [user, workspace]);
-
+    // for list collapse
     const handleClick = () => {
         setOpen(!open);
     };
@@ -104,7 +98,8 @@ export default function ChannelList(props) {
                         )}
                     </ListItemIcon>
                     <ListItemText primary="Channels" />
-                    {owner && (
+                    {/* Add button for adding a channel */}
+                    {workspace.admin && (
                         <ListItemSecondaryAction>
                             <IconButton
                                 onClick={handleClickOpen}
@@ -143,13 +138,11 @@ export default function ChannelList(props) {
                                 <ListItemText primary={channel.name} />
                             </ListItem>
                         ))}
-                        {owner && (
+                        {workspace.admin && (
                             <ListItem
                                 button
                                 className={classes.nested}
-                                onClick={(e) => {
-                                    handleClickOpen(e);
-                                }}
+                                onClick={handleClickOpen}
                                 // selected={value === i}
                             >
                                 <ListItemIcon
@@ -168,7 +161,6 @@ export default function ChannelList(props) {
             <AddChannelDialog
                 open={addChannelDialogOpen}
                 setOpen={setAddChannelDialogOpen}
-                handleClickOpen={handleClickOpen}
                 handleClose={handleClose}
                 workspace={workspace}
             />

@@ -3,7 +3,6 @@ import { GET_USER_WORKSPACES } from "../graphql/graphql";
 import { useQuery } from "@apollo/client";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // import UserProvider from "../contexts/UserProvider";
-// import InfoIcon from "@material-ui/icons/Info";
 import AppBar from "../components/TopBar";
 import ErrorBoundary from "../ErrorBoundary";
 import ChannelTab from "./ChannelTab";
@@ -19,17 +18,6 @@ import AllDMs from "./AllDMs";
 //     padding: theme.spacing(3),
 // },
 
-// display: "grid",
-// height: "100vh",
-// gridTemplateColumns: "100px 250px 1fr",
-// gridTemplateRows: "auto 1fr auto",
-// display: grid;
-// grid-template-rows: auto;
-// overflow: hidden;
-// position: relative;
-
-// }));
-
 export default function WorkspaceHome(props) {
     // const classes = useStyles();
     const {
@@ -38,12 +26,6 @@ export default function WorkspaceHome(props) {
     } = useRouteMatch();
     // const location = useLocation();
     const history = useHistory();
-    // let workspaces = [],
-    //     receiver = {};
-    // if (location?.state) {
-    //     workspaces = location.state.workspaces;
-    //     receiver = location.state.receiver;
-    // }
 
     const [currentWorkspace, setCurrentWorkspace] = React.useState({});
     const [currentChannel, setCurrentChannel] = React.useState({});
@@ -78,7 +60,7 @@ export default function WorkspaceHome(props) {
 
     if (loading) return <Loading />;
 
-    return (
+    return data?.getUserWorkspaces ? (
         <AppBar workspaceData={currentWorkspace} workspaces={data.getUserWorkspaces}>
             <ErrorBoundary>
                 {channelId && <ChannelTab channel={currentChannel} />}
@@ -86,5 +68,5 @@ export default function WorkspaceHome(props) {
                 {url.includes("all-dms") && <AllDMs />}
             </ErrorBoundary>
         </AppBar>
-    );
+    ) : null;
 }

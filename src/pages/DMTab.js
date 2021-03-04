@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
     },
     footer: {
         gridRow: 3,
+        paddingLeft: "1.3em",
+        paddingRight: "1.3em",
+        paddingBottom: "1.3em",
     },
 }));
 
@@ -49,7 +52,7 @@ function DMTab(props) {
     // const location = useLocation();
     const { receiverId, workspaceId } = useParams();
     const classes = useStyles();
-
+    const [filesToUpload, setFilesToUpload] = React.useState([]);
     const { loading, data, subscribeToMore } = useQuery(GET_DIRECT_MESSAGES, {
         fetchPolicy: "network-only",
         variables: { receiverId, workspaceId },
@@ -59,7 +62,7 @@ function DMTab(props) {
             return err;
         },
     });
-    //console.log(data);
+    // console.log(data);
     // React.useEffect(() => {
     //     if (location?.state) {
     //         setUser(location.state.receiver);
@@ -82,12 +85,12 @@ function DMTab(props) {
             },
         });
 
-    return loading ? (
-        <Loading />
-    ) : (
+    if (loading) return <Loading />;
+
+    return data?.getDirectMessages ? (
         <div className={classes.root}>
             <div className={classes.header}>
-                <DMTabTopBar receiver={{}} />
+                <DMTabTopBar name={data.getUser.name} />
                 <Divider />
             </div>
 
@@ -95,22 +98,25 @@ function DMTab(props) {
                 <Messages
                     messages={data.getDirectMessages}
                     subscribeForNewMessages={subscribeForNewDirectMessages}
+                    setFilesToUpload={setFilesToUpload}
                 />
             </div>
 
             <div className={classes.footer}>
                 <SendMessage
-                    placeholder={""}
+                    placeholder={data.getUser.name}
                     receiverId={receiverId}
                     workspaceId={workspaceId}
                     createMessage={createDirectMessage}
+                    setFilesToUpload={setFilesToUpload}
+                    filesToUpload={filesToUpload}
                 />
             </div>
         </div>
-    );
+    ) : null;
 }
 
-const DMTabTopBar = ({ receiver }) => (
+const DMTabTopBar = ({ name }) => (
     <Grid
         container
         alignItems="center"
@@ -118,8 +124,8 @@ const DMTabTopBar = ({ receiver }) => (
         style={{ padding: "1rem", paddingTop: "1.3rem" }}
     >
         <Grid item>
-            <Typography style={{ fontSize: "1em", fontWeight: "700" }} color="initial">
-                {receiver.name}
+            <Typography style={{ fontWeight: "700" }} color="initial">
+                {name}
             </Typography>
         </Grid>
     </Grid>

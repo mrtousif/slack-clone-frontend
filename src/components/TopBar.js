@@ -125,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
         color: "rgb(201, 209, 217)",
     },
     height: {
-        minHeight: "39px",
+        minHeight: "38px",
     },
 }));
 
@@ -255,16 +255,16 @@ function ResponsiveDrawer(props) {
                     </Drawer>
                 </Hidden>
             </nav>
+
             <main
                 style={{
                     flexGrow: 1,
-                    // paddingTop: theme.spacing(3),
                     marginTop: "30px",
+                    // paddingTop: theme.spacing(4),
                 }}
             >
                 <div>{props.children}</div>
             </main>
-            {/* <div className={classes.toolbar}></div> */}
         </div>
     );
 }
