@@ -3,16 +3,16 @@ import {
     ApolloClient,
     InMemoryCache,
     ApolloProvider,
-    createHttpLink,
+    // createHttpLink,
     split,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
-// import Notification from "../components/Notification";
+import { createUploadLink } from "apollo-upload-client";
 
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
     uri: "http://localhost:5000/graphql",
 });
 
@@ -20,18 +20,24 @@ const wsLink = new WebSocketLink({
     uri: "ws://localhost:5000/subscriptions",
     options: {
         reconnect: true,
-        connectionParams: { token: `Bearer ${localStorage.getItem("token")}` },
+        connectionParams: {
+            token: `Bearer ${localStorage.getItem("token")}`,
+        },
     },
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)
         graphQLErrors.forEach(({ message, locations, path }) => {
+            if (message.includes("Not authenticated")) {
+                localStorage.removeItem("token");
+            }
             console.error(
                 `[GraphQL error]: Message: ${message}, Location: ${{
                     ...locations,
                 }}, Path: ${path}`
             );
+
             // return <Notification message={message}/>
             // if (message.includes("not authenticated")) {
             //     Router.replace("/login");
@@ -41,7 +47,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
             // }
         });
 
-    if (networkError) console.warn(`[Network error]: ${networkError}`);
+    if (networkError) console.warn(`[Network error]: ${{ ...networkError }}`);
 });
 
 const authLink = setContext(() => {

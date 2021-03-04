@@ -11,9 +11,10 @@ import {
 import MessageIcon from "@material-ui/icons/Message";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { makeStyles } from "@material-ui/core/styles";
-import Link from "./Link";
+import Link from "./RouterLink";
 import ChannelList from "./ChannelList";
 import DMList from "./DMList";
+// import UserProvider from "../contexts/UserProvider";
 // import { useRouteMatch } from "react-hook-form";
 
 // const drawerWidth = 250;
@@ -69,7 +70,7 @@ export default function SideBar(props) {
     const { workspaceData } = props;
     // workspaces = [],
     const classes = useStyles();
-    // console.log(workspaces);
+    // const { user } = React.useContext(UserProvider.context);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
@@ -165,7 +166,7 @@ export default function SideBar(props) {
             <ChannelList channels={workspaceData.channels} workspace={workspaceData} />
             <Divider />
             <DMList
-                receivers={workspaceData.directMessageMembers || []}
+                receivers={workspaceData.directMessageMembers}
                 workspace={workspaceData}
             />
             <Divider />

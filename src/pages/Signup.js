@@ -17,7 +17,7 @@ import { useMutation } from "@apollo/client";
 import UserProvider from "../contexts/UserProvider";
 import { SIGNUP_INPUT } from "../graphql/graphql";
 import Notification from "../components/Notification";
-import Link from "../components/Link";
+import Link from "../components/RouterLink";
 // import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({

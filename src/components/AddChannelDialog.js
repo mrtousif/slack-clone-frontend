@@ -39,10 +39,6 @@ export default function FormDialog(props) {
     const matchesSM = useMediaQuery(theme.breakpoints.up("sm"));
     // const [errMsg, setErrMsg] = React.useState(null);
     // const userCtx = React.useContext(UserProvider.context);
-    const handleChange = (event) => {
-        // setState({ ...state, [event.target.name]: event.target.checked });
-        setChecked(!checked);
-    };
 
     const [createChannel, { loading, error }] = useMutation(CREATE_CHANNEL, {
         update(cache, result) {
@@ -146,7 +142,7 @@ export default function FormDialog(props) {
                                 />
                             </Grid>
                             <Grid item>
-                                <Typography>Description (optional)</Typography>
+                                <Typography>Description</Typography>
                                 <TextField
                                     margin="dense"
                                     name="description"
@@ -159,7 +155,7 @@ export default function FormDialog(props) {
                                         minLength: 2,
                                         maxLength: 80,
                                     })}
-                                    placeholder="What's this channel about?"
+                                    placeholder="What's this channel about? (optional)"
                                 />
                             </Grid>
 
@@ -181,7 +177,7 @@ export default function FormDialog(props) {
                                         name="private"
                                         color="primary"
                                         checked={checked}
-                                        onChange={handleChange}
+                                        onChange={() => setChecked(!checked)}
                                         inputProps={{
                                             "aria-label": "checkbox",
                                         }}
@@ -208,78 +204,3 @@ export default function FormDialog(props) {
         </div>
     );
 }
-
-// import { withStyles } from '@material-ui/core/styles';
-// import Button from '@material-ui/core/Button';
-// import CloseIcon from '@material-ui/icons/Close';
-// import Typography from '@material-ui/core/Typography';
-
-// const styles = (theme) => ({
-//   root: {
-//     margin: 0,
-//     padding: theme.spacing(2),
-//   },
-//   closeButton: {
-//     position: 'absolute',
-//     right: theme.spacing(1),
-//     top: theme.spacing(1),
-//     color: theme.palette.grey[500],
-//   },
-// });
-
-// // const DialogContent = withStyles((theme) => ({
-// //   root: {
-// //     padding: theme.spacing(2),
-// //   },
-// // }))(MuiDialogContent);
-
-// // const DialogActions = withStyles((theme) => ({
-// //   root: {
-// //     margin: 0,
-// //     padding: theme.spacing(1),
-// //   },
-// // }))(MuiDialogActions);
-
-// export default function CustomizedDialogs() {
-//   const [open, setOpen] = React.useState(false);
-
-//   const handleClickOpen = () => {
-//     setOpen(true);
-//   };
-//   const handleClose = () => {
-//     setOpen(false);
-//   };
-
-//   return (
-//     <div>
-//       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-//         Open dialog
-//       </Button>
-//       <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
-//         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-//           Modal title
-//         </DialogTitle>
-//         <DialogContent dividers>
-//           <Typography gutterBottom>
-//             Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
-//             in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-//           </Typography>
-//           <Typography gutterBottom>
-//             Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
-//             lacus vel augue laoreet rutrum faucibus dolor auctor.
-//           </Typography>
-//           <Typography gutterBottom>
-//             Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
-//             scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
-//             auctor fringilla.
-//           </Typography>
-//         </DialogContent>
-//         <DialogActions>
-//           <Button autoFocus onClick={handleClose} color="primary">
-//             Save changes
-//           </Button>
-//         </DialogActions>
-//       </Dialog>
-//     </div>
-//   );
-// }

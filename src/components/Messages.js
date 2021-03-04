@@ -5,14 +5,16 @@ import {
     IconButton,
     Avatar,
     Menu,
-    // MenuItem
     Grow,
+    Link,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { parseISO, formatDistanceToNow } from "date-fns";
 import { blue } from "@material-ui/core/colors";
+import Dropzone from "./Dropzone";
 // import UserProvider from "../contexts/UserProvider";;
+
 const useStyles = makeStyles((theme) => ({
     blue: {
         // color: theme.palette.getContrastText(blue[300]),
@@ -21,10 +23,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default class Messages extends React.Component {
+export default class MessageContainer extends React.Component {
     componentDidMount() {
-        this.unsubscribe = this.props.subscribeForNewMessages();
-        console.log(this.unsubscribe);
+        if (this.props.subscribeForNewMessages) {
+            this.unsubscribe = this.props.subscribeForNewMessages();
+        }
+
+        // console.log(this.unsubscribe);
     }
 
     componentWillUnmount() {
@@ -34,15 +39,23 @@ export default class Messages extends React.Component {
     }
 
     render() {
-        return this.props.messages.map((message) => (
-            <Message key={message.id} message={message} />
-        ));
+        return (
+            <Dropzone
+                disableClick
+                setFilesToUpload={this.props.setFilesToUpload}
+                style={this.props.style}
+            >
+                {this.props.messages.map((message) => (
+                    <Message key={message.id} message={message} />
+                ))}
+            </Dropzone>
+        );
     }
 }
 
 const Message = ({ message }) => {
     const classes = useStyles();
-    const { text, user, createdAt } = message;
+    const { text, user, createdAt, url, fileType } = message;
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
@@ -133,7 +146,9 @@ const Message = ({ message }) => {
                         >
                             <Typography variant="body2">{text}</Typography>
                         </Grid>
-
+                        <Grid item>
+                            {url && <MediaItem url={url} fileType={fileType} />}
+                        </Grid>
                         <Grid item style={{ marginLeft: "auto" }}>
                             <IconButton
                                 aria-label="more"
@@ -153,4 +168,33 @@ const Message = ({ message }) => {
     );
 };
 
-// export default Messages;
+const MediaItem = ({ url, fileType }) => {
+    if (!url || !fileType) return null;
+    // let item = null;
+    console.log(url, fileType);
+    if (fileType.includes("image")) {
+        return <img src={url} alt="" style={{ maxWidth: "100%", height: "100%" }} />;
+    } else if (fileType.includes("audio")) {
+        return (
+            <audio
+                src={url}
+                controls="controls"
+                style={{ display: "block", maxWidth: "100%" }}
+                type={fileType}
+                preload="metadata"
+            />
+        );
+    } else if (fileType.includes("video")) {
+        return (
+            <video
+                src={url}
+                controls
+                style={{ maxWidth: "100%", height: "100%" }}
+                type={fileType}
+                preload="metadata"
+            />
+        );
+    }
+
+    return <Link href={url}>{url}</Link>;
+};

@@ -59,6 +59,25 @@ export const GET_MESSAGES = gql`
         getMessages(channelId: $channelId) {
             id
             text
+            url
+            fileType
+            user {
+                id
+                name
+                photo
+            }
+            createdAt
+        }
+    }
+`;
+
+export const MESSAGE_SUBSCRIPTION = gql`
+    subscription newMessage($channelId: ID!) {
+        newMessage(channelId: $channelId) {
+            id
+            text
+            url
+            fileType
             user {
                 id
                 name
@@ -71,6 +90,9 @@ export const GET_MESSAGES = gql`
 
 export const GET_DIRECT_MESSAGES = gql`
     query getDirectMessages($receiverId: ID!, $workspaceId: ID!) {
+        getUser(userId: $receiverId) {
+            name
+        }
         getDirectMessages(receiverId: $receiverId, workspaceId: $workspaceId) {
             id
             text
@@ -108,8 +130,8 @@ export const CREATE_WORKSPACE = gql`
 `;
 
 export const CREATE_MESSAGE = gql`
-    mutation createMessage($channelId: ID!, $message: String!) {
-        createMessage(channelId: $channelId, text: $message) {
+    mutation createMessage($channelId: ID!, $message: String!, $file: Upload) {
+        createMessage(channelId: $channelId, text: $message, file: $file) {
             id
             text
             createdAt
@@ -151,21 +173,6 @@ export const CREATE_CHANNEL = gql`
     }
 `;
 
-export const MESSAGE_SUBSCRIPTION = gql`
-    subscription newMessage($channelId: ID!) {
-        newMessage(channelId: $channelId) {
-            id
-            text
-            user {
-                id
-                name
-                photo
-            }
-            createdAt
-        }
-    }
-`;
-
 export const DIRECT_MESSAGE_SUBSCRIPTION = gql`
     subscription newDirectMessage($receiverId: ID!, $workspaceId: ID!) {
         newDirectMessage(receiverId: $receiverId, workspaceId: $workspaceId) {
@@ -184,6 +191,14 @@ export const DIRECT_MESSAGE_SUBSCRIPTION = gql`
 export const ADD_WORKSPACE_MEMBERS = gql`
     mutation addWorkspaceMembers($workspaceId: ID!, $emails: [String!]!) {
         addWorkspaceMembers(workspaceId: $workspaceId, emails: $emails) {
+            ok
+        }
+    }
+`;
+
+export const ADD_CHANNEL_MEMBERS = gql`
+    mutation addWorkspaceMembers($channelId: ID!, $emails: [String!]!) {
+        addWorkspaceMembers(channelId: $channelId, emails: $emails) {
             ok
         }
     }

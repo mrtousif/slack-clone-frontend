@@ -18,7 +18,7 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import Link from "./Link";
+import Link from "./RouterLink";
 import AddChannelDialog from "./AddChannelDialog";
 import AddTeammates from "./AddTeammate";
 import { useRouteMatch, useHistory } from "react-router-dom";
