@@ -30,7 +30,10 @@ export default function WorkspaceHome(props) {
     const [currentWorkspace, setCurrentWorkspace] = React.useState({});
     const [currentChannel, setCurrentChannel] = React.useState({});
 
-    const { loading, data } = useQuery(GET_USER_WORKSPACES);
+    const { loading, data } = useQuery(GET_USER_WORKSPACES, {
+        fetchPolicy: "cache-and-network",
+        pollInterval: 5000,
+    });
     // const [getDMsOfUser, { loading: loading2, data: data2 }] = useLazyQuery({
     //     variables: { userId },
     // });

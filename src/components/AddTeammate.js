@@ -121,7 +121,8 @@ export default function AddTeammates(props) {
                                     disableRipple
                                     style={{ textTransform: "none" }}
                                     onClick={(e) => {
-                                        console.log(e.target);
+                                        // console.log(e.target);
+                                        // e.target.textContent = "Copied";
                                     }}
                                 >
                                     Copy invite link

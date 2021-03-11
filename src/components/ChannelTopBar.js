@@ -85,18 +85,22 @@ const ChannelTabTopBar = ({ channel }) => {
                         </IconButton>
                     </Grid>
                 </Grid>
-                <AddChannelMemberDialog
-                    channel={channel}
-                    open={addMemberDialogOpen}
-                    setOpen={setAddMemberDialogOpen}
-                    handleClose={addMemberDialogToggle}
-                />
-                <ViewChannelMembersDialog
-                    channel={channel}
-                    open={viewMemberDialogOpen}
-                    setOpen={setViewMemberDialogOpen}
-                    handleClose={viewMemberDialogToggle}
-                />
+                {addMemberDialogOpen && (
+                    <AddChannelMemberDialog
+                        channel={channel}
+                        open={addMemberDialogOpen}
+                        setOpen={setAddMemberDialogOpen}
+                        handleClose={addMemberDialogToggle}
+                    />
+                )}
+                {viewMemberDialogOpen && (
+                    <ViewChannelMembersDialog
+                        channel={channel}
+                        open={viewMemberDialogOpen}
+                        setOpen={setViewMemberDialogOpen}
+                        handleClose={viewMemberDialogToggle}
+                    />
+                )}
             </Grid>
         </Grid>
     );

@@ -24,13 +24,13 @@ const useStyles = makeStyles((theme) => ({
     header: {
         gridRow: 1,
     },
-    content: {
-        gridRow: 2,
-        overflowY: "auto",
-        display: "flex",
-        flexDirection: "column-reverse",
-        // padding: "1em",
-    },
+    // content: {
+    // gridRow: 2,
+    // overflowY: "auto",
+    // display: "flex",
+    // flexDirection: "column-reverse",
+    // padding: "1em",
+    // },
     footer: {
         gridRow: 3,
         paddingLeft: "1.3em",
@@ -76,37 +76,39 @@ function ChannelTab(props) {
     return (
         <div className={classes.root}>
             <div className={classes.header}>
-                <ChannelTabTopBar channel={channel} />
+                {channel && <ChannelTabTopBar channel={channel} />}
                 <Divider />
             </div>
 
-            <div className={classes.content}>
-                {loading ? (
-                    <Loading />
-                ) : data?.getMessages ? (
-                    <Messages
-                        style={{
-                            gridRow: 2,
-                            overflowY: "auto",
-                            display: "flex",
-                            flexDirection: "column-reverse",
-                            padding: "1em",
-                        }}
-                        messages={data.getMessages}
-                        subscribeForNewMessages={subscribeForNewMessages}
-                        setFilesToUpload={setFilesToUpload}
-                    />
-                ) : null}
-            </div>
-
-            <div className={classes.footer}>
-                <SendMessage
-                    placeholder={channel.name}
-                    channelId={channelId}
-                    createMessage={createMessage}
-                    filesToUpload={filesToUpload}
+            {/* <div className={classes.content}> */}
+            {loading ? (
+                <Loading />
+            ) : data?.getMessages ? (
+                <Messages
+                    style={{
+                        gridRow: 2,
+                        overflowY: "auto",
+                        display: "flex",
+                        flexDirection: "column-reverse",
+                        padding: "1em",
+                    }}
+                    messages={data.getMessages}
+                    subscribeForNewMessages={subscribeForNewMessages}
                     setFilesToUpload={setFilesToUpload}
                 />
+            ) : null}
+            {/* </div> */}
+
+            <div className={classes.footer}>
+                {channel && (
+                    <SendMessage
+                        placeholder={channel.name}
+                        channelId={channelId}
+                        createMessage={createMessage}
+                        filesToUpload={filesToUpload}
+                        setFilesToUpload={setFilesToUpload}
+                    />
+                )}
             </div>
         </div>
     );

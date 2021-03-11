@@ -10,6 +10,8 @@ export const GET_USER_WORKSPACES = gql`
             channels {
                 id
                 name
+                private
+                description
             }
             directMessageMembers {
                 id
@@ -29,6 +31,7 @@ export const GET_WORKSPACE = gql`
             channels {
                 id
                 name
+                private
             }
             directMessageMembers {
                 id
@@ -44,7 +47,8 @@ export const GET_CHANNEL = gql`
         getChannel(channelId: $channelId) {
             id
             name
-            owner
+            private
+            description
             # messages {
             #     id
             #     text
@@ -112,6 +116,28 @@ export const GET_WORKSPACE_MEMBERS = gql`
             id
             name
             photo
+        }
+    }
+`;
+
+export const GET_MEMBERS_TO_ADD_TO_THE_CHANNEL = gql`
+    query getMembersToAddToTheChannel($workspaceId: ID!, $channelId: ID!) {
+        getMembersToAddToTheChannel(workspaceId: $workspaceId, channelId: $channelId) {
+            id
+            # name
+            # photo
+        }
+    }
+`;
+
+export const GET_CHANNEL_MEMBERS = gql`
+    query getChannel($channelId: ID!) {
+        getChannel(channelId: $channelId) {
+            members {
+                id
+                name
+                photo
+            }
         }
     }
 `;

@@ -4,11 +4,11 @@ import Loading from "../components/Loading";
 import { GET_USER_WORKSPACES } from "../graphql/graphql";
 import { useHistory } from "react-router-dom";
 
-export default function Home(props) {
+export default function Home() {
     const history = useHistory();
     // const workspaceId = props.params.workspaceId;
     const { loading, data, error } = useQuery(GET_USER_WORKSPACES, {
-        fetchPolicy: "cache-and-network",
+        fetchPolicy: "network-only",
     });
 
     React.useEffect(() => {

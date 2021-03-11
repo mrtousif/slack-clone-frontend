@@ -5,42 +5,57 @@ import {
     Grid,
     Divider,
     CircularProgress,
-    TextField,
     Dialog,
     DialogActions,
     DialogContent,
     useMediaQuery,
 } from "@material-ui/core";
 // import DialogContentText from "@material-ui/core/DialogContentText";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import DialogTitle from "./DialogTitle";
 import { useTheme } from "@material-ui/core/styles";
 // import { clone } from "rambda";
 import MultiSelect from "./MultiSelect";
 // import UserProvider from "../contexts/UserProvider";
-import { ADD_CHANNEL_MEMBERS } from "../graphql/graphql";
+import {
+    ADD_CHANNEL_MEMBERS,
+    GET_MEMBERS_TO_ADD_TO_THE_CHANNEL,
+} from "../graphql/graphql";
+import { useParams } from "react-router-dom";
 
 export default function AddChannelMember(props) {
+    const { workspaceId } = useParams();
     const { open, setOpen, handleClose, channel } = props;
     const theme = useTheme();
     const matchesSM = useMediaQuery(theme.breakpoints.up("sm"));
-    // const [errMsg, setErrMsg] = React.useState(null);
-    // const userCtx = React.useContext(UserProvider.context);
-    const [addChannelMembers, { loading, error }] = useMutation(ADD_CHANNEL_MEMBERS, {
-        update(cache, result) {
-            try {
-                setOpen(false);
-            } catch (error) {
-                console.error(error);
-            }
-        },
 
-        onError(err) {
-            return err;
+    // const userCtx = React.useContext(UserProvider.context);
+    const { data, loading } = useQuery(GET_MEMBERS_TO_ADD_TO_THE_CHANNEL, {
+        variables: {
+            workspaceId,
+            channelId: channel.id,
         },
     });
+    console.log(data);
 
-    const onSubmit = (data) => {
+    const [addChannelMembers, { loading: loading2, error }] = useMutation(
+        ADD_CHANNEL_MEMBERS,
+        {
+            update(cache, result) {
+                try {
+                    setOpen(false);
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+
+            onError(err) {
+                return err;
+            },
+        }
+    );
+
+    const submitData = (data) => {
         const { emails } = data;
         const multipleEmail = emails.split(",");
         // console.log(multipleEmail);
@@ -71,7 +86,10 @@ export default function AddChannelMember(props) {
                 >
                     <Grid container direction="column">
                         <Grid item>
-                            <MultiSelect />
+                            <MultiSelect
+                                loading={loading}
+                                items={data?.getMembersToAddToTheChannel}
+                            />
                         </Grid>
                         <Grid item>
                             {error && (
@@ -91,14 +109,14 @@ export default function AddChannelMember(props) {
                 <DialogActions>
                     <Button
                         type="submit"
-                        disabled={loading ? true : false}
+                        disabled={loading2 ? true : false}
                         variant="outlined"
                         color="primary"
                         style={{ marginRight: "1em" }}
                         // className={classes.submit}
-                        // onClick={handleClose}
+                        onClick={submitData}
                     >
-                        {loading ? <CircularProgress size="2em" /> : "Save"}
+                        {loading2 ? <CircularProgress size="2em" /> : "Save"}
                     </Button>
                 </DialogActions>
             </Dialog>

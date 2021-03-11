@@ -1,83 +1,100 @@
 import React from "react";
 import {
-    Button,
     Typography,
     Grid,
     Divider,
-    CircularProgress,
     TextField,
+    // Button,
     Dialog,
     DialogActions,
     DialogContent,
     useMediaQuery,
+    CircularProgress,
+    List,
+    ListItem,
 } from "@material-ui/core";
 // import DialogContentText from "@material-ui/core/DialogContentText";
-import { useMutation } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import DialogTitle from "./DialogTitle";
+import Loading from "./Loading";
 import { useTheme } from "@material-ui/core/styles";
 // import { clone } from "rambda";
-import { ADD_CHANNEL_MEMBERS } from "../graphql/graphql";
+import { GET_CHANNEL_MEMBERS } from "../graphql/graphql";
 
 export default function ViewChannelMembers(props) {
-    const { open, setOpen, handleClose, channel } = props;
+    const { open, handleClose, channel } = props;
     const theme = useTheme();
     const matchesSM = useMediaQuery(theme.breakpoints.up("sm"));
-
-    const [addChannelMembers, { loading, error }] = useMutation(ADD_CHANNEL_MEMBERS, {
-        update(cache, result) {
-            try {
-                setOpen(false);
-            } catch (error) {
-                console.error(error);
-            }
-        },
-
-        onError(err) {
-            return err;
+    const [members, setMembers] = React.useState([]);
+    const { data, error, loading } = useQuery(GET_CHANNEL_MEMBERS, {
+        variables: {
+            channelId: channel.id,
         },
     });
 
-    const onSubmit = (data) => {
-        const { emails } = data;
-        const multipleEmail = emails.split(",");
-        // console.log(multipleEmail);
-        addChannelMembers({
-            variables: {
-                channelId: channel.id,
-                emails: multipleEmail,
-            },
+    React.useEffect(() => {
+        if (data?.getChannel?.members) {
+            setMembers(data.getChannel.members);
+        }
+    }, [data]);
+
+    const handleTextChange = (e) => {
+        const value = e.target.value.toLowerCase();
+        const filtered = members.filter((member) => {
+            // console.log(member.name.includes(e.target.value));
+            const name = member.name.toLowerCase();
+            if (name.includes(value)) return true;
+            else return false;
         });
+        // console.log(filtered);
+        setMembers(filtered);
+        if (value.length === 0) {
+            setMembers(data.getChannel.members);
+        }
     };
+    // console.log(channel.private);
 
     return (
         <div>
             <Dialog
                 open={open}
+                fullScreen={matchesSM ? false : true}
                 onClose={handleClose}
                 aria-labelledby="form-add-teammates"
             >
-                <DialogTitle id="form-add-teammates" onClose={handleClose}>
-                    0 members in #{channel.name}
+                <DialogTitle
+                    id="form-add-teammates"
+                    onClose={handleClose}
+                    subtitle={
+                        <Typography variant="subtitle2" color="textSecondary">
+                            <i>{channel.private ? "Private" : "Public"}</i>
+                        </Typography>
+                    }
+                >
+                    {data?.getChannel?.members.length} members in #{channel.name}
                 </DialogTitle>
+
                 <Divider />
 
-                <DialogContent
-                    style={{
-                        width: matchesSM ? "520px" : "360px",
-                        height: "440px",
-                    }}
-                >
-                    <Grid container direction="column">
+                <DialogContent>
+                    <Grid
+                        container
+                        direction="column"
+                        style={{
+                            width: matchesSM ? "520px" : undefined,
+                            height: matchesSM ? "440px" : undefined,
+                        }}
+                    >
                         <Grid item>
                             <TextField
                                 margin="dense"
                                 name="description"
                                 id="description"
                                 variant="outlined"
-                                // label="Email Address"
                                 type="text"
                                 fullWidth
                                 placeholder="Search members"
+                                onChange={handleTextChange}
                             />
                         </Grid>
                         <Grid item>
@@ -93,6 +110,17 @@ export default function ViewChannelMembers(props) {
                                 </Typography>
                             )}
                         </Grid>
+                        <Grid item>
+                            {loading ? (
+                                <Loading />
+                            ) : (
+                                <List dense>
+                                    {members.map((member) => (
+                                        <ListItem key={member.id}>{member.name}</ListItem>
+                                    ))}
+                                </List>
+                            )}
+                        </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
@@ -103,7 +131,7 @@ export default function ViewChannelMembers(props) {
                         color="primary"
                         style={{ marginRight: "1em" }}
                         // className={classes.submit}
-                        // onClick={handleClose}
+                        onClick={submitData}
                     >
                         {loading ? <CircularProgress size="2em" /> : "Save"}
                     </Button> */}

@@ -22,6 +22,7 @@ export default function UserSelect() {
     const { workspaceId } = useParams();
     const { loading, data } = useQuery(GET_WORKSPACE_MEMBERS, {
         variables: { workspaceId },
+        fetchPolicy: "network-only",
     });
     // console.log(data);
 
@@ -56,7 +57,7 @@ export default function UserSelect() {
                         setOpen(false);
                     }}
                     getOptionSelected={(option, value) => {
-                        console.log(option, value);
+                        // console.log(option, value);
                         if (option.name === value.name) {
                             history.push({
                                 pathname: `/${workspaceId}/dm/${option.id}`,

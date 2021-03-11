@@ -21,17 +21,16 @@ import { clone } from "rambda";
 // import UserProvider from "../contexts/UserProvider";
 import {
     CREATE_CHANNEL,
-    GET_WORKSPACE,
-    // GET_USER_WORKSPACES
+    // GET_WORKSPACE,
+    GET_USER_WORKSPACES,
 } from "../graphql/graphql";
 import DialogTitle from "./DialogTitle";
 import Notification from "./Notification";
-import { useRouteMatch } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function FormDialog(props) {
-    const {
-        params: { workspaceId },
-    } = useRouteMatch();
+    const { workspaceId } = useParams();
+    // const history = useHistory();
     const { open, setOpen, handleClose } = props;
     const { handleSubmit, register, errors } = useForm();
     const [checked, setChecked] = React.useState(false);
@@ -43,34 +42,29 @@ export default function FormDialog(props) {
     const [createChannel, { loading, error }] = useMutation(CREATE_CHANNEL, {
         update(cache, result) {
             try {
-                const { getWorkspace } = cache.readQuery({
-                    query: GET_WORKSPACE,
-                    variables: { workspaceId },
+                const { getUserWorkspaces } = cache.readQuery({
+                    query: GET_USER_WORKSPACES,
+                });
+                console.log(getUserWorkspaces);
+
+                let workspaces = clone(getUserWorkspaces);
+                console.log(workspaces);
+                // const updated = workspace.channels.unshift(result.data.createChannel);
+                workspaces = workspaces.map((ws) => {
+                    if (ws.id === workspaceId) {
+                        ws.channels.unshift(result.data.createChannel);
+                    }
+                    return ws;
                 });
 
-                // const data = cache.readQuery({
-                //     query: GET_USER_WORKSPACES,
-                // });
-                // console.log(data);
-
-                const workspace = clone(getWorkspace);
-                // console.log(workspace);
-                const updated = workspace.channels.unshift(result.data.createChannel);
-                // workspaces.map((ws) => {
-                //     if (ws.id === workspaceId) {
-                //         ws.channels.unshift(result.data.createChannel);
-                //     }
-                //     return ws;
-                // });
-
                 cache.writeQuery({
-                    query: GET_WORKSPACE,
-                    variables: { workspaceId },
+                    query: GET_USER_WORKSPACES,
                     data: {
-                        getWorkspace: updated,
+                        getUserWorkspaces: workspaces,
                     },
                 });
                 setOpen(false);
+                // history.push(`/${workspaceId}/${result.data.createChannel.id}`);
             } catch (error) {
                 console.error(error);
             }

@@ -173,13 +173,13 @@ const MediaItem = ({ url, fileType }) => {
     // let item = null;
     console.log(url, fileType);
     if (fileType.includes("image")) {
-        return <img src={url} alt="" style={{ maxWidth: "100%", height: "100%" }} />;
+        return <img src={url} alt="" style={{ maxWidth: "90%", height: "100%" }} />;
     } else if (fileType.includes("audio")) {
         return (
             <audio
                 src={url}
                 controls="controls"
-                style={{ display: "block", maxWidth: "100%" }}
+                style={{ display: "block", maxWidth: "90%" }}
                 type={fileType}
                 preload="metadata"
             />
@@ -189,7 +189,7 @@ const MediaItem = ({ url, fileType }) => {
             <video
                 src={url}
                 controls
-                style={{ maxWidth: "100%", height: "100%" }}
+                style={{ maxWidth: "90%", height: "100%" }}
                 type={fileType}
                 preload="metadata"
             />
